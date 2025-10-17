@@ -504,6 +504,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1246635110}
+  - component: {fileID: 1246635111}
   m_Layer: 0
   m_Name: LevelRendererObject
   m_TagString: Untagged
@@ -526,6 +527,31 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1246635111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1246635109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03eca168b7fba9648a50c2efc027b971, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundTilemap: {fileID: 0}
+  wallTilemap: {fileID: 0}
+  decorationTilemap: {fileID: 0}
+  floorTile: {fileID: 11400000, guid: 95af6aefe844710428db5eecb8dd8894, type: 2}
+  wallTile: {fileID: 11400000, guid: a5898a4d78e6928459babc2606482cc4, type: 2}
+  wallDecoTile: {fileID: 0}
+  waterTile: {fileID: 0}
+  grassTile: {fileID: 0}
+  highGrassTile: {fileID: 0}
+  entranceTile: {fileID: 0}
+  exitTile: {fileID: 0}
+  doorTile: {fileID: 0}
+  trapTile: {fileID: 0}
 --- !u!1 &1388348060
 GameObject:
   m_ObjectHideFlags: 0
