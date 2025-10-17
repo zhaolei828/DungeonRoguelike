@@ -266,7 +266,7 @@ public abstract class Level : MonoBehaviour
         terrainMap[x, y] = terrain;
         
         // 通知地形变化（可以用于更新Tilemap等）
-        OnTerrainChanged(x, y, terrain);
+        HandleTerrainChanged(x, y, terrain);
     }
     
     /// <summary>
@@ -285,7 +285,7 @@ public abstract class Level : MonoBehaviour
     /// <param name="x">X坐标</param>
     /// <param name="y">Y坐标</param>
     /// <param name="terrain">新地形</param>
-    protected virtual void OnTerrainChanged(int x, int y, Terrain terrain)
+    protected virtual void HandleTerrainChanged(int x, int y, Terrain terrain)
     {
         // 子类可以重写此方法来处理地形变化
         // 比如更新Tilemap、触发特效等

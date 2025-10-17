@@ -43,7 +43,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
         {
             { Terrain.Floor, floorTile },
             { Terrain.Wall, wallTile },
-            { Terrain.Wall, wallDecoTile },
+            { Terrain.WallDeco, wallDecoTile },
             { Terrain.Water, waterTile },
             { Terrain.Grass, grassTile },
             { Terrain.HighGrass, highGrassTile },

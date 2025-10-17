@@ -1,0 +1,25 @@
+修复：TestDungeon场景运行错误
+
+🐛 修复的问题：
+1. OnTerrainChanged方法名与Unity消息系统冲突
+   - 重命名为 HandleTerrainChanged
+   - 文件：Level.cs
+
+2. LevelRenderer重复的Dictionary键
+   - 修复：Terrain.Wall 重复 -> Terrain.WallDeco
+   - 文件：LevelRenderer.cs
+
+✅ 新增工具：
+- TestDungeonSceneSetup.cs - 一键配置测试场景
+  - 自动创建所有必需组件
+  - 自动配置Tilemap和相机
+  - 通过菜单调用：DungeonRoguelike/Setup TestDungeon Scene
+
+📚 新增文档：
+- Week1-4_演示指南.md - 详细的演示说明
+
+🎯 结果：
+- 0个编译错误
+- TestDungeon场景可正常运行
+- 地牢生成系统完全可用
+
