@@ -220,8 +220,11 @@ public class LoopBuilder : ILevelBuilder
             }
         }
         
-        // 连接未连接的房间
-        foreach (Room room in rooms)
+        // 连接未连接的房间 - 使用副本避免遍历时修改
+        List<TunnelRoom> newTunnels = new List<TunnelRoom>();
+        List<Room> roomsCopy = new List<Room>(rooms);
+        
+        foreach (Room room in roomsCopy)
         {
             if (!connected.Contains(room))
             {
@@ -229,11 +232,18 @@ public class LoopBuilder : ILevelBuilder
                 Room nearest = FindNearestRoom(room, new List<Room>(connected));
                 if (nearest != null)
                 {
-                    ConnectTwoRooms(room, nearest);
+                    TunnelRoom tunnel = ConnectTwoRoomsAndReturnTunnel(room, nearest);
+                    if (tunnel != null)
+                    {
+                        newTunnels.Add(tunnel);
+                    }
                     connected.Add(room);
                 }
             }
         }
+        
+        // 统一添加所有新的走廊房间
+        rooms.AddRange(newTunnels);
     }
     
     /// <summary>

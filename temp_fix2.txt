@@ -1,21 +1,17 @@
-修复：数组越界错误 - CoordsToPos缺少width参数
+修复：LoopBuilder.ConnectRooms()遍历修改异常
 
 🐛 问题：
-- Level.Map属性访问时数组越界
-- CoordsToPos方法调用缺少width参数
-- 导致坐标计算错误，索引超出数组范围
+ConnectRooms()方法在遍历rooms时调用ConnectTwoRooms()添加新tunnel
 
-✅ 修复文件：
-1. Level.cs
-   - Map属性的get和set方法
-   - 添加width参数到CoordsToPos调用
+✅ 修复：
+- 创建roomsCopy用于遍历
+- 使用ConnectTwoRoomsAndReturnTunnel()收集tunnel
+- 统一AddRange添加
 
-2. Painter.cs
-   - Set方法中的CoordsToPos调用
-   - 添加level.Width参数
+✨ 测试：
+- Unity Play模式运行 ✅
+- 无Console错误 ✅
+- 地牢生成正常 ✅
 
-🎯 结果：
-- 地牢生成完全正常
-- 按G键可正常重新生成
-- 0个运行时错误
-
+📝 修改：
+LoopBuilder.cs ConnectRooms()方法 223-246行
