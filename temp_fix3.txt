@@ -1,0 +1,21 @@
+修复：LevelRenderer自动查找Tilemap
+
+🐛 问题：
+Tilemaps not properly configured!
+LevelRenderer的Tilemap字段未分配
+
+✅ 修复：
+- 新增AutoFindTilemaps()方法
+- 自动查找场景中的GroundTilemap、WallTilemap、DecorationTilemap
+- 支持按名称匹配或按顺序分配
+- 如果已手动分配则跳过自动查找
+
+✨ 测试结果：
+- Unity Play模式 ✅
+- 无Console错误 ✅
+- Tilemap自动配置 ✅
+- 地牢生成系统完全正常 ✅
+
+📝 修改文件：
+LevelRenderer.cs 新增AutoFindTilemaps()方法
+
