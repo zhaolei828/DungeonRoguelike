@@ -113,7 +113,7 @@ public abstract class Level : MonoBehaviour
                 {
                     for (int x = 0; x < width; x++)
                     {
-                        mapAs1DArray[LevelCoord.CoordsToPos(x, y)] = terrainMap[x, y];
+                        mapAs1DArray[LevelCoord.CoordsToPos(x, y, width)] = terrainMap[x, y];
                     }
                 }
             }
@@ -134,7 +134,7 @@ public abstract class Level : MonoBehaviour
             {
                 for (int x = 0; x < width; x++)
                 {
-                    int pos = LevelCoord.CoordsToPos(x, y);
+                    int pos = LevelCoord.CoordsToPos(x, y, width);
                     if (pos < mapAs1DArray.Length)
                     {
                         terrainMap[x, y] = mapAs1DArray[pos];

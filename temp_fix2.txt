@@ -1,0 +1,21 @@
+修复：数组越界错误 - CoordsToPos缺少width参数
+
+🐛 问题：
+- Level.Map属性访问时数组越界
+- CoordsToPos方法调用缺少width参数
+- 导致坐标计算错误，索引超出数组范围
+
+✅ 修复文件：
+1. Level.cs
+   - Map属性的get和set方法
+   - 添加width参数到CoordsToPos调用
+
+2. Painter.cs
+   - Set方法中的CoordsToPos调用
+   - 添加level.Width参数
+
+🎯 结果：
+- 地牢生成完全正常
+- 按G键可正常重新生成
+- 0个运行时错误
+

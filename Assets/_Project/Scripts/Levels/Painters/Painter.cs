@@ -38,7 +38,7 @@ public static class Painter
     {
         if (x >= 0 && x < level.Width && y >= 0 && y < level.Height)
         {
-            int pos = LevelCoord.CoordsToPos(x, y);
+            int pos = LevelCoord.CoordsToPos(x, y, level.Width);
             level.Map[pos] = terrain;
         }
     }
