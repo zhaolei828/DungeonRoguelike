@@ -1,0 +1,39 @@
+🎥 修复：相机配置错误导致Game视图空白
+
+🐛 问题诊断：
+地牢生成成功（有日志），但Game视图空白
+根本原因：相机配置错误
+
+❌ 问题详情：
+1. Projection = Perspective（应该是Orthographic）
+2. Position = (0,0,-10)（应该在地图中心）
+3. Orthographic Size = 5（太小，应该25+）
+4. Tag = Untagged（应该是MainCamera）
+
+✅ 自动修复：
+- 设置 Projection: Orthographic
+- 设置 Orthographic Size: 25
+- 移动相机到 (24, 24, -10) - 地牢中心
+- 设置 Tag: MainCamera
+
+📐 计算依据：
+- 地牢大小: 48x48
+- 中心点: (48/2, 48/2) = (24, 24)
+- Size: 25 可以看到50x50区域
+
+📝 相机配置修复.md：
+- 完整的问题诊断过程
+- 配置参数对比
+- 计算方法说明
+- 手动修复步骤
+- 标准2D相机配置指南
+- 常见错误和预防措施
+
+🎮 用户需要：
+1. 保存场景 (Ctrl+S)
+2. Play测试
+3. 按G键
+4. 应该能看到完整地牢了！
+
+🔧 通过MCP自动诊断和修复相机配置！
+
