@@ -95,6 +95,7 @@ public abstract class Level : MonoBehaviour
     
     /// <summary>
     /// 地图数据（1D数组访问，用于Room系统）
+    /// 注意：修改此数组的元素不会自动同步到2D数组，请使用SetTerrain方法
     /// </summary>
     public Terrain[] Map 
     { 

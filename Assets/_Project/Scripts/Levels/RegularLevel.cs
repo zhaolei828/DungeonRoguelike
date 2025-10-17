@@ -95,9 +95,16 @@ public class RegularLevel : Level
     /// </summary>
     protected void PaintRooms()
     {
+        Debug.Log($"[PaintRooms] Painting {rooms.Count} rooms:");
+        
         foreach (Room room in rooms)
         {
-            room.Paint(this);
+            Debug.Log($"  {room.GetRoomType()}: bounds({room.left},{room.top},{room.right},{room.bottom}) = {room.Width}x{room.Height}");
+            bool success = room.Paint(this);
+            if (!success)
+            {
+                Debug.LogWarning($"  Failed to paint {room.GetRoomType()}!");
+            }
         }
     }
     

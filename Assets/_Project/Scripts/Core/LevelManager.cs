@@ -97,36 +97,26 @@ public class LevelManager : Singleton<LevelManager>
         // 清理旧关卡
         ClearCurrentLevel();
         
-        // 生成新关卡
+        // 生成新关卡（CreateLevelForDepth内部已经调用了生成逻辑）
         Level newLevel = CreateLevelForDepth(depth);
         
         if (newLevel != null)
         {
-            // 执行关卡生成
-            bool generated = newLevel.Generate();
-            
-            if (generated)
+            // CreateLevelForDepth已经完成了生成，直接渲染即可
+            // 渲染关卡到Tilemap
+            if (LevelRenderer.Instance != null)
             {
-                // 渲染关卡到Tilemap
-                if (LevelRenderer.Instance != null)
-                {
-                    LevelRenderer.Instance.RenderLevel(newLevel);
-                }
-                else
-                {
-                    Debug.LogWarning("LevelRenderer not found, level will not be rendered");
-                }
-                
-                CurrentLevel = newLevel;
-                OnLevelGenerated?.Invoke(CurrentLevel);
-                
-                Debug.Log($"Level {depth} generated and rendered successfully");
+                LevelRenderer.Instance.RenderLevel(newLevel);
             }
             else
             {
-                Debug.LogError($"Failed to generate level {depth}");
-                Destroy(newLevel.gameObject);
+                Debug.LogWarning("LevelRenderer not found, level will not be rendered");
             }
+            
+            CurrentLevel = newLevel;
+            OnLevelGenerated?.Invoke(CurrentLevel);
+            
+            Debug.Log($"Level {depth} generated and rendered successfully");
         }
         else
         {

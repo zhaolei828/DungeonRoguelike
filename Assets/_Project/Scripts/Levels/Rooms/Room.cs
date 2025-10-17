@@ -38,13 +38,13 @@ public abstract class Room
     }
     
     /// <summary>
-    /// 设置房间位置
+    /// 设置房间位置（左上角）
+    /// 注意：应该在调用SetSize()之前调用此方法
     /// </summary>
     public virtual void SetPos(int left, int top)
     {
         this.left = left;
         this.top = top;
-        // right和bottom需要在SetSize后设置
     }
     
     /// <summary>

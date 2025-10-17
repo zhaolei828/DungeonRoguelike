@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+namespace _Project.Scripts.UI
+{
 /// <summary>
 /// 主菜单UI控制器
 /// </summary>
@@ -43,9 +45,10 @@ public class MainMenuUI : MonoBehaviour
         Debug.Log("开始新游戏");
         
         // 加载游戏场景
-        if (FindObjectOfType<SceneLoader>() != null)
+        var loader = Object.FindFirstObjectByType<SceneLoader>();
+        if (loader != null)
         {
-            FindObjectOfType<SceneLoader>().LoadGameScene();
+            loader.LoadGameScene();
         }
         else
         {
@@ -82,9 +85,10 @@ public class MainMenuUI : MonoBehaviour
     {
         Debug.Log("退出游戏");
         
-        if (FindObjectOfType<SceneLoader>() != null)
+        var loader = Object.FindFirstObjectByType<SceneLoader>();
+        if (loader != null)
         {
-            FindObjectOfType<SceneLoader>().QuitGame();
+            loader.QuitGame();
         }
         else
         {
@@ -104,9 +108,11 @@ public class MainMenuUI : MonoBehaviour
         if (continueButton != null)
         {
             // TODO: 检查是否有存档
-            bool hasSave = false; // PlayerPrefs.HasKey("SaveGame")
+            // 使用 PlayerPrefs 检查是否存在存档键（可替换为项目的实际存档系统）
+            bool hasSave = PlayerPrefs.HasKey("SaveGame");
             continueButton.interactable = hasSave;
         }
     }
 }
 
+} // namespace _Project.Scripts.UI

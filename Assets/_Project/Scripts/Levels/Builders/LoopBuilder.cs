@@ -76,24 +76,35 @@ public class LoopBuilder : ILevelBuilder
     /// </summary>
     private void InitRooms()
     {
+        // 确保有足够的空间
+        int safeMaxX = Mathf.Max(3, level.Width - 10);
+        int safeMaxY = Mathf.Max(3, level.Height - 10);
+        
         // 创建入口房间
         EntranceRoom entrance = new EntranceRoom();
+        int entranceX = random.Next(2, safeMaxX);
+        int entranceY = random.Next(2, safeMaxY);
+        entrance.SetPos(entranceX, entranceY);
         entrance.SetSize();
-        entrance.SetPos(random.Next(2, level.Width - 7), random.Next(2, level.Height - 7));
         rooms.Add(entrance);
         
         // 创建出口房间
         ExitRoom exit = new ExitRoom();
-        exit.SetSize();
         // 尝试将出口放在远离入口的位置
         int attempts = 0;
         do
         {
-            exit.SetPos(random.Next(2, level.Width - 7), random.Next(2, level.Height - 7));
+            int exitX = random.Next(2, safeMaxX);
+            int exitY = random.Next(2, safeMaxY);
+            exit.SetPos(exitX, exitY);
+            exit.SetSize();
             attempts++;
         } while (attempts < 50 && (Vector2Int.Distance(entrance.Center, exit.Center) < 15 || exit.Intersect(entrance)));
         
         rooms.Add(exit);
+        
+        Debug.Log($"[InitRooms] Entrance: pos({entrance.left},{entrance.top}) bounds({entrance.left},{entrance.top},{entrance.right},{entrance.bottom}) size {entrance.Width}x{entrance.Height}");
+        Debug.Log($"[InitRooms] Exit: pos({exit.left},{exit.top}) bounds({exit.left},{exit.top},{exit.right},{exit.bottom}) size {exit.Width}x{exit.Height}");
     }
     
     /// <summary>
@@ -105,16 +116,23 @@ public class LoopBuilder : ILevelBuilder
         int attempts = 0;
         int maxAttempts = 500;
         
+        // 确保安全边距计算有效
+        int safeMargin = maxRoomSize + 2;
+        int maxX = Mathf.Max(2, level.Width - safeMargin);
+        int maxY = Mathf.Max(2, level.Height - safeMargin);
+        
         while (rooms.Count < roomsToPlace + 2 && attempts < maxAttempts) // +2 for entrance and exit
         {
             StandardRoom newRoom = new StandardRoom(minRoomSize, maxRoomSize);
-            newRoom.SetSize();
             
-            // 随机位置
-            newRoom.SetPos(
-                random.Next(1, level.Width - newRoom.Width - 1),
-                random.Next(1, level.Height - newRoom.Height - 1)
-            );
+            // 先设置位置（使用安全边距）
+            int posX = random.Next(1, maxX);
+            int posY = random.Next(1, maxY);
+            
+            newRoom.SetPos(posX, posY);
+            
+            // 再设置大小（这会正确计算right和bottom）
+            newRoom.SetSize();
             
             // 检查是否与现有房间重叠
             bool canPlace = true;
@@ -135,7 +153,7 @@ public class LoopBuilder : ILevelBuilder
             attempts++;
         }
         
-        Debug.Log($"LoopBuilder: Placed {rooms.Count} rooms (including entrance and exit)");
+        Debug.Log($"[PlaceRooms] Placed {rooms.Count} rooms total");
     }
     
     /// <summary>

@@ -30,6 +30,9 @@ public class DungeonGeneratorTest : MonoBehaviour
         }
         
         UpdateInfoText();
+        
+        // 自动生成一次地牢（用于测试）
+        Invoke(nameof(GenerateLevel), 0.5f);
     }
     
     private void Update()
