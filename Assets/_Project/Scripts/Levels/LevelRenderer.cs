@@ -1,19 +1,19 @@
-ï»¿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 
 /// <summary>
-/// å…³å¡æ¸²æŸ“å™¨
-/// è´Ÿè´£å°†Levelçš„åœ°å½¢æ•°æ®æ¸²æŸ“åˆ°Unity Tilemap
+/// ¹Ø¿¨äÖÈ¾Æ÷
+/// ¸ºÔğ½«LevelµÄµØĞÎÊı¾İäÖÈ¾µ½Unity Tilemap
 /// </summary>
 public class LevelRenderer : Singleton<LevelRenderer>
 {
-    [Header("Tilemapå¼•ç”¨")]
-    [SerializeField] private Tilemap groundTilemap;      // åœ°æ¿å±‚
-    [SerializeField] private Tilemap wallTilemap;        // å¢™å£å±‚
-    [SerializeField] private Tilemap decorationTilemap;  // è£…é¥°å±‚
+    [Header("TilemapÒıÓÃ")]
+    [SerializeField] private Tilemap groundTilemap;      // µØ°å²ã
+    [SerializeField] private Tilemap wallTilemap;        // Ç½±Ú²ã
+    [SerializeField] private Tilemap decorationTilemap;  // ×°ÊÎ²ã
     
-    [Header("Tileèµ„æº")]
+    [Header("Tile×ÊÔ´")]
     [SerializeField] private TileBase floorTile;
     [SerializeField] private TileBase wallTile;
     [SerializeField] private TileBase wallDecoTile;
@@ -25,7 +25,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     [SerializeField] private TileBase doorTile;
     [SerializeField] private TileBase trapTile;
     
-    // Tileæ˜ å°„å­—å…¸
+    // TileÓ³Éä×Öµä
     private Dictionary<Terrain, TileBase> terrainToTileMap;
     
     protected override void Awake()
@@ -35,7 +35,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// åˆå§‹åŒ–åœ°å½¢åˆ°Tileçš„æ˜ å°„
+    /// ³õÊ¼»¯µØĞÎµ½TileµÄÓ³Éä
     /// </summary>
     private void InitializeTileMapping()
     {
@@ -43,7 +43,6 @@ public class LevelRenderer : Singleton<LevelRenderer>
         {
             { Terrain.Floor, floorTile },
             { Terrain.Wall, wallTile },
-            { Terrain.WallDeco, wallDecoTile },
             { Terrain.Water, waterTile },
             { Terrain.Grass, grassTile },
             { Terrain.HighGrass, highGrassTile },
@@ -51,12 +50,13 @@ public class LevelRenderer : Singleton<LevelRenderer>
             { Terrain.Exit, exitTile },
             { Terrain.DoorOpen, doorTile },
             { Terrain.Trap, trapTile },
-            { Terrain.Empty, null } // ç©ºåœ°å½¢ä¸æ¸²æŸ“
+            { Terrain.Decoration, wallDecoTile }, // ×°ÊÎÎïÊ¹ÓÃwallDecoTile
+            { Terrain.Empty, null } // ¿ÕµØĞÎ²»äÖÈ¾
         };
     }
     
     /// <summary>
-    /// æ¸²æŸ“å…³å¡
+    /// äÖÈ¾¹Ø¿¨
     /// </summary>
     public void RenderLevel(Level level)
     {
@@ -66,10 +66,10 @@ public class LevelRenderer : Singleton<LevelRenderer>
             return;
         }
         
-        // æ¸…é™¤ç°æœ‰Tilemap
+        // Çå³ıÏÖÓĞTilemap
         ClearAllTilemaps();
         
-        // æ£€æŸ¥Tilemapæ˜¯å¦é…ç½®
+        // ¼ì²éTilemapÊÇ·ñÅäÖÃ
         if (!ValidateTilemaps())
         {
             Debug.LogError("Tilemaps not properly configured!");
@@ -78,7 +78,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
         
         Debug.Log($"Rendering level: {level.Width}x{level.Height}");
         
-        // æ¸²æŸ“æ‰€æœ‰åœ°å½¢
+        // äÖÈ¾ËùÓĞµØĞÎ
         for (int x = 0; x < level.Width; x++)
         {
             for (int y = 0; y < level.Height; y++)
@@ -92,14 +92,14 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// æ¸²æŸ“å•ä¸ªåœ°å½¢
+    /// äÖÈ¾µ¥¸öµØĞÎ
     /// </summary>
     private void RenderTerrain(int x, int y, Terrain terrain)
     {
         Vector3Int tilePos = new Vector3Int(x, y, 0);
         TileBase tile = GetTileForTerrain(terrain);
         
-        // æ ¹æ®åœ°å½¢ç±»å‹é€‰æ‹©åˆé€‚çš„Tilemapå±‚
+        // ¸ù¾İµØĞÎÀàĞÍÑ¡ÔñºÏÊÊµÄTilemap²ã
         Tilemap targetTilemap = GetTargetTilemap(terrain);
         
         if (targetTilemap != null && tile != null)
@@ -109,7 +109,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// è·å–åœ°å½¢å¯¹åº”çš„Tile
+    /// »ñÈ¡µØĞÎ¶ÔÓ¦µÄTile
     /// </summary>
     private TileBase GetTileForTerrain(Terrain terrain)
     {
@@ -118,12 +118,12 @@ public class LevelRenderer : Singleton<LevelRenderer>
             return tile;
         }
         
-        // é»˜è®¤è¿”å›åœ°æ¿Tile
+        // Ä¬ÈÏ·µ»ØµØ°åTile
         return floorTile;
     }
     
     /// <summary>
-    /// æ ¹æ®åœ°å½¢ç±»å‹é€‰æ‹©ç›®æ ‡Tilemap
+    /// ¸ù¾İµØĞÎÀàĞÍÑ¡ÔñÄ¿±êTilemap
     /// </summary>
     private Tilemap GetTargetTilemap(Terrain terrain)
     {
@@ -148,7 +148,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// æ¸…é™¤æ‰€æœ‰Tilemap
+    /// Çå³ıËùÓĞTilemap
     /// </summary>
     public void ClearAllTilemaps()
     {
@@ -163,7 +163,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// éªŒè¯Tilemapé…ç½®
+    /// ÑéÖ¤TilemapÅäÖÃ
     /// </summary>
     private bool ValidateTilemaps()
     {
@@ -191,7 +191,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// è®¾ç½®Tilemapå¼•ç”¨ï¼ˆç”¨äºè¿è¡Œæ—¶é…ç½®ï¼‰
+    /// ÉèÖÃTilemapÒıÓÃ£¨ÓÃÓÚÔËĞĞÊ±ÅäÖÃ£©
     /// </summary>
     public void SetTilemaps(Tilemap ground, Tilemap wall, Tilemap decoration)
     {
@@ -201,7 +201,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// æ‰¹é‡æ¸²æŸ“ï¼ˆæ€§èƒ½ä¼˜åŒ–ç‰ˆæœ¬ï¼‰
+    /// ÅúÁ¿äÖÈ¾£¨ĞÔÄÜÓÅ»¯°æ±¾£©
     /// </summary>
     public void RenderLevelOptimized(Level level)
     {
@@ -210,7 +210,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
             
         ClearAllTilemaps();
         
-        // ä½¿ç”¨SetTilesBlockæ‰¹é‡è®¾ç½®
+        // Ê¹ÓÃSetTilesBlockÅúÁ¿ÉèÖÃ
         int width = level.Width;
         int height = level.Height;
         
@@ -226,7 +226,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
                 Terrain terrain = level.GetTerrain(x, y);
                 TileBase tile = GetTileForTerrain(terrain);
                 
-                // æ ¹æ®ç±»å‹åˆ†é…åˆ°ä¸åŒæ•°ç»„
+                // ¸ù¾İÀàĞÍ·ÖÅäµ½²»Í¬Êı×é
                 switch (GetTargetTilemap(terrain)?.name)
                 {
                     case "GroundTilemap":
@@ -242,7 +242,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
             }
         }
         
-        // æ‰¹é‡è®¾ç½®Tiles
+        // ÅúÁ¿ÉèÖÃTiles
         BoundsInt bounds = new BoundsInt(0, 0, 0, width, height, 1);
         groundTilemap.SetTilesBlock(bounds, groundTiles);
         wallTilemap.SetTilesBlock(bounds, wallTiles);
