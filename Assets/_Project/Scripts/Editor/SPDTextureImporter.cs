@@ -40,6 +40,8 @@ public class SPDSpriteSlicerWindow : EditorWindow
         GetWindow<SPDSpriteSlicerWindow>("SPD Sprite Slicer");
     }
     
+    private string lastResult = "";
+    
     private void OnGUI()
     {
         GUILayout.Label("SPD Sprite自动切割工具", EditorStyles.boldLabel);
@@ -51,12 +53,27 @@ public class SPDSpriteSlicerWindow : EditorWindow
         }
         
         GUILayout.Space(10);
+        
+        // 显示上次执行结果
+        if (!string.IsNullOrEmpty(lastResult))
+        {
+            EditorGUILayout.HelpBox(lastResult, MessageType.Info);
+            GUILayout.Space(10);
+        }
+        
         GUILayout.Label("说明:", EditorStyles.helpBox);
         EditorGUILayout.HelpBox(
             "此工具会自动将所有地形贴图按16x16网格切割。\n" +
             "确保已将SPD的PNG文件复制到:\n" +
-            "Assets/_Project/Art/Tiles/Environment/", 
+            "Assets/_Project/Art/Tiles/Environment/\n\n" +
+            "✅ 可以多次执行，不会有问题！\n" +
+            "📊 查看Console窗口获取详细日志", 
             MessageType.Info);
+        
+        if (GUILayout.Button("打开Console查看详细日志", GUILayout.Height(30)))
+        {
+            EditorWindow.GetWindow(System.Type.GetType("UnityEditor.ConsoleWindow,UnityEditor"));
+        }
     }
     
     private void SliceAllTiles()
@@ -98,8 +115,12 @@ public class SPDSpriteSlicerWindow : EditorWindow
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         
+        lastResult = $"✅ 切割完成！\n成功: {successCount}/{paths.Length}\n失败: {failCount}";
+        
         EditorUtility.DisplayDialog("切割完成", 
-            $"成功: {successCount}\n失败: {failCount}", 
+            $"✅ 成功切割: {successCount}/{paths.Length}\n" +
+            $"❌ 失败: {failCount}\n\n" +
+            $"查看Console窗口获取详细信息", 
             "确定");
     }
     
