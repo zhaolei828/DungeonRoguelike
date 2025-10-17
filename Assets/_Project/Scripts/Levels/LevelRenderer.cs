@@ -31,7 +31,52 @@ public class LevelRenderer : Singleton<LevelRenderer>
     protected override void Awake()
     {
         base.Awake();
+        AutoFindTilemaps();
         InitializeTileMapping();
+    }
+    
+    /// <summary>
+    /// 自动查找场景中的Tilemap
+    /// </summary>
+    private void AutoFindTilemaps()
+    {
+        // 如果已经手动分配，则不自动查找
+        if (groundTilemap != null && wallTilemap != null && decorationTilemap != null)
+            return;
+        
+        // 查找所有Tilemap
+        Tilemap[] tilemaps = FindObjectsByType<Tilemap>(FindObjectsSortMode.None);
+        
+        foreach (Tilemap tilemap in tilemaps)
+        {
+            string name = tilemap.gameObject.name.ToLower();
+            
+            if (name.Contains("ground") && groundTilemap == null)
+            {
+                groundTilemap = tilemap;
+                Debug.Log($"自动找到GroundTilemap: {tilemap.gameObject.name}");
+            }
+            else if (name.Contains("wall") && wallTilemap == null)
+            {
+                wallTilemap = tilemap;
+                Debug.Log($"自动找到WallTilemap: {tilemap.gameObject.name}");
+            }
+            else if (name.Contains("decoration") && decorationTilemap == null)
+            {
+                decorationTilemap = tilemap;
+                Debug.Log($"自动找到DecorationTilemap: {tilemap.gameObject.name}");
+            }
+        }
+        
+        // 如果还是没找到，尝试按顺序分配
+        if (tilemaps.Length >= 3 && (groundTilemap == null || wallTilemap == null || decorationTilemap == null))
+        {
+            if (groundTilemap == null) groundTilemap = tilemaps[0];
+            if (wallTilemap == null && tilemaps.Length > 1) wallTilemap = tilemaps[1];
+            if (decorationTilemap == null && tilemaps.Length > 2) decorationTilemap = tilemaps[2];
+            
+            Debug.LogWarning("未找到匹配名称的Tilemap，已按顺序自动分配");
+        }
     }
     
     /// <summary>
