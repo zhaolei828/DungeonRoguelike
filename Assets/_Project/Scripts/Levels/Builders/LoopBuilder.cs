@@ -163,7 +163,13 @@ public class LoopBuilder : ILevelBuilder
     /// </summary>
     private void CreateLoops()
     {
-        foreach (Room room in rooms)
+        // 先收集所有要添加的走廊房间，避免在遍历时修改集合
+        List<TunnelRoom> newTunnels = new List<TunnelRoom>();
+        
+        // 创建rooms的副本用于遍历
+        List<Room> roomsCopy = new List<Room>(rooms);
+        
+        foreach (Room room in roomsCopy)
         {
             // 查找附近的房间
             List<Room> nearby = FindNearbyRooms(room, 10f);
@@ -173,10 +179,17 @@ public class LoopBuilder : ILevelBuilder
                 // 如果还没有连接，并且随机通过，则创建连接
                 if (room.GetConnectionTo(other) == null && Random.value < loopChance)
                 {
-                    ConnectTwoRooms(room, other);
+                    TunnelRoom tunnel = ConnectTwoRoomsAndReturnTunnel(room, other);
+                    if (tunnel != null)
+                    {
+                        newTunnels.Add(tunnel);
+                    }
                 }
             }
         }
+        
+        // 统一添加所有新的走廊房间
+        rooms.AddRange(newTunnels);
     }
     
     /// <summary>
@@ -237,13 +250,25 @@ public class LoopBuilder : ILevelBuilder
     }
     
     /// <summary>
-    /// 连接两个房间
+    /// 连接两个房间（直接添加到rooms）
     /// </summary>
     private void ConnectTwoRooms(Room room1, Room room2)
     {
+        TunnelRoom tunnel = ConnectTwoRoomsAndReturnTunnel(room1, room2);
+        if (tunnel != null)
+        {
+            rooms.Add(tunnel);
+        }
+    }
+    
+    /// <summary>
+    /// 连接两个房间并返回走廊（不添加到rooms）
+    /// </summary>
+    private TunnelRoom ConnectTwoRoomsAndReturnTunnel(Room room1, Room room2)
+    {
         // 检查是否已连接
         if (room1.GetConnectionTo(room2) != null)
-            return;
+            return null;
         
         // 找到两个房间最近的点
         Vector2Int point1 = GetClosestPoint(room1, room2.Center);
@@ -252,10 +277,11 @@ public class LoopBuilder : ILevelBuilder
         // 创建走廊
         TunnelRoom tunnel = new TunnelRoom();
         tunnel.CreatePath(point1, point2);
-        rooms.Add(tunnel);
         
         // 创建门连接
         Door door = new Door(room1, room2, point1);
+        
+        return tunnel;
     }
     
     /// <summary>

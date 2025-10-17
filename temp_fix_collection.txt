@@ -1,0 +1,21 @@
+修复：LoopBuilder集合遍历时修改异常
+
+🐛 问题：
+Collection was modified; enumeration operation may not execute.
+在LoopBuilder.CreateLoops()遍历rooms时，ConnectTwoRooms()会添加新tunnel到rooms
+
+✅ 修复方案：
+1. 创建rooms副本用于遍历
+2. 新增ConnectTwoRoomsAndReturnTunnel()方法返回tunnel但不添加
+3. 收集所有新tunnel到临时列表
+4. 遍历结束后统一AddRange添加
+
+✨ 测试结果：
+- Unity Play模式：✅ 无错误
+- Console输出：✅ 干净
+- 地牢生成：✅ 正常运行
+
+📝 修改文件：
+- LoopBuilder.cs CreateLoops()方法
+- 新增ConnectTwoRoomsAndReturnTunnel()方法
+
