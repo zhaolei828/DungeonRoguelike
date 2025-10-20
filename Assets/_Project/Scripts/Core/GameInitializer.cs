@@ -33,6 +33,27 @@ public class GameInitializer : MonoBehaviour
         if (hero != null)
         {
             Debug.Log($"<color=green>=== Hero Spawned: {hero.Class} ===</color>");
+            
+            // 添加玩家输入组件
+            GameObject inputGO = new GameObject("PlayerInput");
+            inputGO.AddComponent<PlayerInput>();
+            
+            // 为主相机添加跟随组件
+            Camera mainCamera = Camera.main;
+            if (mainCamera != null)
+            {
+                CameraFollow cameraFollow = mainCamera.gameObject.GetComponent<CameraFollow>();
+                if (cameraFollow == null)
+                {
+                    cameraFollow = mainCamera.gameObject.AddComponent<CameraFollow>();
+                }
+                cameraFollow.SetTarget(hero.transform);
+                Debug.Log("<color=cyan>=== Camera Follow Enabled ===</color>");
+            }
+            else
+            {
+                Debug.LogWarning("Main Camera not found, camera follow not enabled.");
+            }
         }
         else
         {
