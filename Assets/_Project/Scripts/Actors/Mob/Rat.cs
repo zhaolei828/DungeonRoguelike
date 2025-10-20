@@ -11,9 +11,7 @@ public class Rat : Mob
     protected override void Start()
     {
         // 设置老鼠的属性
-        mobName = "老鼠";
-        hp = 20;
-        maxHp = 20;
+        SetMobProperties("老鼠", 20, 3, 1, 2, 10);
         
         // 添加BasicAI行为
         if (GetComponent<IAIBehavior>() == null)

@@ -10,9 +10,7 @@ public class Bat : Mob
 {
     protected override void Start()
     {
-        mobName = "蝙蝠";
-        hp = 15;
-        maxHp = 15;
+        SetMobProperties("蝙蝠", 15, 4, 0, 4, 15);
         
         if (GetComponent<IAIBehavior>() == null)
         {

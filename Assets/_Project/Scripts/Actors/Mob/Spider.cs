@@ -10,9 +10,7 @@ public class Spider : Mob
 {
     protected override void Start()
     {
-        mobName = "蜘蛛";
-        hp = 25;
-        maxHp = 25;
+        SetMobProperties("蜘蛛", 25, 5, 2, 2, 20);
         
         if (GetComponent<IAIBehavior>() == null)
         {

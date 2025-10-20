@@ -10,9 +10,7 @@ public class Goblin : Mob
 {
     protected override void Start()
     {
-        mobName = "地精";
-        hp = 30;
-        maxHp = 30;
+        SetMobProperties("地精", 30, 6, 2, 3, 25);
         
         if (GetComponent<IAIBehavior>() == null)
         {

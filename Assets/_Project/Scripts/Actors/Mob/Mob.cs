@@ -22,6 +22,20 @@ public class Mob : Actor
     public int Defense => defense;
     public int Agility => agility;
     
+    /// <summary>
+    /// 设置怪物属性（由派生类在Start中使用）
+    /// </summary>
+    protected void SetMobProperties(string name, int newMaxHp, int newAttackPower, int newDefense, int newAgility, int newExp)
+    {
+        mobName = name;
+        maxHp = newMaxHp;
+        hp = newMaxHp;
+        attackPower = newAttackPower;
+        defense = newDefense;
+        agility = newAgility;
+        experienceReward = newExp;
+    }
+    
     // AI行为
     protected IAIBehavior aiBehavior;
     protected bool isInCombat = false;
@@ -59,7 +73,11 @@ public class Mob : Actor
         if (isInCombat && aiBehavior != null && targetHero != null)
         {
             // 执行AI行为
-            aiBehavior.Act(this, targetHero, GetComponent<Level>());
+            Level currentLevel = LevelManager.Instance?.CurrentLevel;
+            if (currentLevel != null)
+            {
+                aiBehavior.Act(this, targetHero, currentLevel);
+            }
         }
     }
     

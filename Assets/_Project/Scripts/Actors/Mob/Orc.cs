@@ -10,9 +10,7 @@ public class Orc : Mob
 {
     protected override void Start()
     {
-        mobName = "兽人";
-        hp = 40;
-        maxHp = 40;
+        SetMobProperties("兽人", 40, 8, 4, 2, 35);
         
         if (GetComponent<IAIBehavior>() == null)
         {
