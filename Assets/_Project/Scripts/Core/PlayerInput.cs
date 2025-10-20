@@ -2,6 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// 玩家输入处理 - 处理键盘输入并控制Hero移动（回合制系统）
+/// Hero内部处理平滑运动和动画播放
 /// </summary>
 public class PlayerInput : MonoBehaviour
 {
@@ -11,9 +12,6 @@ public class PlayerInput : MonoBehaviour
     [Header("运动设置")]
     [SerializeField] private float moveCooldown = 0.2f; // 每次移动之间的最小延迟
     private float moveTimer = 0f;
-    
-    [Header("动画设置")]
-    [SerializeField] private bool useMovementAnimation = true; // 是否使用运动动画
     
     private void Start()
     {
@@ -67,39 +65,14 @@ public class PlayerInput : MonoBehaviour
         {
             Vector2Int targetPos = hero.pos + moveDirection;
             
-            // 尝试移动
+            // 尝试移动（Hero内部会处理平滑动画）
             bool moved = hero.TryMoveTo(targetPos, currentLevel);
             
             if (moved)
             {
                 // 移动成功，重置冷却计时
                 moveTimer = moveCooldown;
-                
-                // 更新Hero的Transform位置
-                UpdateHeroTransform();
-                
-                // 触发移动动画
-                if (useMovementAnimation)
-                {
-                    HeroAnimator animator = hero.GetComponent<HeroAnimator>();
-                    if (animator != null)
-                    {
-                        animator.SetAnimationByDirection(moveDirection);
-                    }
-                }
             }
-        }
-    }
-    
-    /// <summary>
-    /// 更新Hero的Transform位置以匹配其逻辑位置
-    /// </summary>
-    private void UpdateHeroTransform()
-    {
-        if (hero != null)
-        {
-            // 将逻辑坐标转换为世界坐标（Tilemap中心对齐）
-            hero.transform.position = new Vector3(hero.pos.x + 0.5f, hero.pos.y + 0.5f, 0);
         }
     }
 }

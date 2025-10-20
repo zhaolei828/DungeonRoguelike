@@ -1,7 +1,9 @@
 using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// Hero 英雄类 - 玩家控制的主角
+/// 使用平滑移动插值而不是瞬间跳跃，确保动画与移动同步
 /// </summary>
 public class Hero : Actor
 {
@@ -18,6 +20,9 @@ public class Hero : Actor
     [SerializeField] private int intelligence = 10;
     [SerializeField] private int willpower = 10;
     
+    [Header("运动设置")]
+    [SerializeField] private float moveDuration = 0.3f; // 移动持续时间（秒）
+    
     // 属性
     public HeroClass Class => heroClass;
     public int Level => level;
@@ -28,6 +33,8 @@ public class Hero : Actor
     public int Strength => strength;
     public int Intelligence => intelligence;
     public int Willpower => willpower;
+    
+    private Coroutine moveCoroutine;
     
     protected override void Start()
     {
@@ -149,19 +156,28 @@ public class Hero : Actor
     }
     
     /// <summary>
-    /// 尝试移动到指定位置
+    /// 尝试移动到指定位置（使用平滑插值）
     /// </summary>
     public bool TryMoveTo(Vector2Int targetPos, Level level)
     {
         if (level != null && level.IsPassable(targetPos))
         {
+            // 如果已有运动正在进行，停止它
+            if (moveCoroutine != null)
+            {
+                StopCoroutine(moveCoroutine);
+            }
+            
             // 计算移动方向
             Vector2Int direction = targetPos - pos;
             
+            // 更新逻辑位置
             pos = targetPos;
-            transform.position = new Vector3(targetPos.x + 0.5f, targetPos.y + 0.5f, 0);
             
-            Debug.Log($"<color=green>Hero moved to {targetPos}</color>");
+            // 触发平滑移动动画
+            moveCoroutine = StartCoroutine(SmoothMoveTo(targetPos, direction));
+            
+            Debug.Log($"<color=green>Hero moving to {targetPos}</color>");
             return true;
         }
         else
@@ -169,6 +185,51 @@ public class Hero : Actor
             // 移动失败（撞到墙壁或边界）
             Debug.Log($"<color=red>Cannot move to {targetPos} (not passable)</color>");
             return false;
+        }
+    }
+    
+    /// <summary>
+    /// 平滑移动协程 - 从当前位置插值到目标位置
+    /// 这个过程中会持续播放行走动画
+    /// </summary>
+    private IEnumerator SmoothMoveTo(Vector2Int targetPos, Vector2Int direction)
+    {
+        // 当前世界位置
+        Vector3 startWorldPos = transform.position;
+        Vector3 targetWorldPos = new Vector3(targetPos.x + 0.5f, targetPos.y + 0.5f, 0);
+        
+        // 触发行走动画
+        HeroAnimator animator = GetComponent<HeroAnimator>();
+        if (animator != null)
+        {
+            animator.SetAnimationByDirection(direction);
+        }
+        
+        // 平滑插值
+        float elapsed = 0f;
+        while (elapsed < moveDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / moveDuration); // 0到1的过程
+            
+            // 使用平滑的缓动函数（如Smooth Step）
+            t = t * t * (3f - 2f * t); // Smoothstep缓动
+            
+            // 更新Transform位置
+            transform.position = Vector3.Lerp(startWorldPos, targetWorldPos, t);
+            
+            yield return null;
+        }
+        
+        // 确保最终位置正确
+        transform.position = targetWorldPos;
+        
+        // 移动完成后返回Idle
+        if (animator != null)
+        {
+            // 延迟设置Idle，让行走动画自然结束
+            yield return new WaitForSeconds(0.1f);
+            animator.SetAnimationState(HeroAnimator.AnimationState.Idle);
         }
     }
     
