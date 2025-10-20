@@ -3,17 +3,17 @@ using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 
 /// <summary>
-/// �ؿ���Ⱦ��
-/// ����Level�ĵ���������Ⱦ��Unity Tilemap
+/// 关卡渲染器
+/// 将Level的地形数据渲染到Unity Tilemap
 /// </summary>
 public class LevelRenderer : Singleton<LevelRenderer>
 {
-    [Header("Tilemap����")]
-    [SerializeField] private Tilemap groundTilemap;      // �ذ��
-    [SerializeField] private Tilemap wallTilemap;        // ǽ�ڲ�
-    [SerializeField] private Tilemap decorationTilemap;  // װ�β�
+    [Header("Tilemap设置")]
+    [SerializeField] private Tilemap groundTilemap;      // 地面Tilemap
+    [SerializeField] private Tilemap wallTilemap;        // 墙壁Tilemap
+    [SerializeField] private Tilemap decorationTilemap;  // 装饰Tilemap
     
-    [Header("Tile��Դ")]
+    [Header("Tile资源")]
     [SerializeField] private TileBase floorTile;
     [SerializeField] private TileBase wallTile;
     [SerializeField] private TileBase wallDecoTile;
@@ -25,7 +25,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     [SerializeField] private TileBase doorTile;
     [SerializeField] private TileBase trapTile;
     
-    // Tileӳ���ֵ�
+    // Tile映射表
     private Dictionary<Terrain, TileBase> terrainToTileMap;
     
     protected override void Awake()
@@ -80,7 +80,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// ��ʼ�����ε�Tile��ӳ��
+    /// 初始化Tile映射表
     /// </summary>
     private void InitializeTileMapping()
     {
@@ -95,13 +95,13 @@ public class LevelRenderer : Singleton<LevelRenderer>
             { Terrain.Exit, exitTile },
             { Terrain.DoorOpen, doorTile },
             { Terrain.Trap, trapTile },
-            { Terrain.Decoration, wallDecoTile }, // װ����ʹ��wallDecoTile
-            { Terrain.Empty, null } // �յ��β���Ⱦ
+            { Terrain.Decoration, wallDecoTile }, // 装饰使用wallDecoTile
+            { Terrain.Empty, null } // 空地不渲染
         };
     }
     
     /// <summary>
-    /// ��Ⱦ�ؿ�
+    /// 渲染关卡
     /// </summary>
     public void RenderLevel(Level level)
     {
@@ -111,10 +111,10 @@ public class LevelRenderer : Singleton<LevelRenderer>
             return;
         }
         
-        // �������Tilemap
+        // 清空所有Tilemap
         ClearAllTilemaps();
         
-        // ���Tilemap�Ƿ�����
+        // 验证Tilemap是否正确
         if (!ValidateTilemaps())
         {
             Debug.LogError("Tilemaps not properly configured!");
@@ -123,7 +123,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
         
         Debug.Log($"Rendering level: {level.Width}x{level.Height}");
         
-        // ��Ⱦ���е���
+        // 渲染所有地形
         for (int x = 0; x < level.Width; x++)
         {
             for (int y = 0; y < level.Height; y++)
@@ -137,14 +137,14 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// ��Ⱦ��������
+    /// 渲染地形
     /// </summary>
     private void RenderTerrain(int x, int y, Terrain terrain)
     {
         Vector3Int tilePos = new Vector3Int(x, y, 0);
         TileBase tile = GetTileForTerrain(terrain);
         
-        // ���ݵ�������ѡ����ʵ�Tilemap��
+        // 根据地形选择对应的Tilemap
         Tilemap targetTilemap = GetTargetTilemap(terrain);
         
         if (targetTilemap != null && tile != null)
@@ -154,7 +154,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// ��ȡ���ζ�Ӧ��Tile
+    /// 获取地形对应的Tile
     /// </summary>
     private TileBase GetTileForTerrain(Terrain terrain)
     {
@@ -163,12 +163,12 @@ public class LevelRenderer : Singleton<LevelRenderer>
             return tile;
         }
         
-        // Ĭ�Ϸ��صذ�Tile
+        // 默认返回地板Tile
         return floorTile;
     }
     
     /// <summary>
-    /// ���ݵ�������ѡ��Ŀ��Tilemap
+        /// 根据地形选择对应的Tilemap
     /// </summary>
     private Tilemap GetTargetTilemap(Terrain terrain)
     {
@@ -193,7 +193,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// �������Tilemap
+    /// 清空所有Tilemap
     /// </summary>
     public void ClearAllTilemaps()
     {
@@ -208,7 +208,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// ��֤Tilemap����
+    /// 验证Tilemap是否正确
     /// </summary>
     private bool ValidateTilemaps()
     {
@@ -236,7 +236,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// ����Tilemap���ã���������ʱ���ã�
+    /// 设置Tilemap引用
     /// </summary>
     public void SetTilemaps(Tilemap ground, Tilemap wall, Tilemap decoration)
     {
@@ -246,7 +246,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
     }
     
     /// <summary>
-    /// ������Ⱦ�������Ż��汾��
+    /// 渲染关卡（优化版本）
     /// </summary>
     public void RenderLevelOptimized(Level level)
     {
@@ -255,7 +255,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
             
         ClearAllTilemaps();
         
-        // ʹ��SetTilesBlock��������
+        // 使用SetTilesBlock批量设置Tile
         int width = level.Width;
         int height = level.Height;
         
@@ -271,7 +271,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
                 Terrain terrain = level.GetTerrain(x, y);
                 TileBase tile = GetTileForTerrain(terrain);
                 
-                // �������ͷ��䵽��ͬ����
+                // 将Tile分配到对应的Tilemap
                 switch (GetTargetTilemap(terrain)?.name)
                 {
                     case "GroundTilemap":
@@ -287,7 +287,7 @@ public class LevelRenderer : Singleton<LevelRenderer>
             }
         }
         
-        // ��������Tiles
+        // 设置Tilemap的Tile
         BoundsInt bounds = new BoundsInt(0, 0, 0, width, height, 1);
         groundTilemap.SetTilesBlock(bounds, groundTiles);
         wallTilemap.SetTilesBlock(bounds, wallTiles);

@@ -155,8 +155,19 @@ public class Hero : Actor
     {
         if (level != null && level.IsPassable(targetPos))
         {
+            // 计算移动方向
+            Vector2Int direction = targetPos - pos;
+            
             pos = targetPos;
             transform.position = new Vector3(targetPos.x + 0.5f, targetPos.y + 0.5f, 0);
+            
+            // 更新动画
+            HeroAnimator animator = GetComponent<HeroAnimator>();
+            if (animator != null)
+            {
+                animator.SetAnimationByDirection(direction);
+            }
+            
             Debug.Log($"Hero moved to {targetPos}");
         }
     }
