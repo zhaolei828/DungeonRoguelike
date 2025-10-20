@@ -593,8 +593,8 @@ MonoBehaviour:
   waterTile: {fileID: 0}
   grassTile: {fileID: 0}
   highGrassTile: {fileID: 0}
-  entranceTile: {fileID: 0}
-  exitTile: {fileID: 0}
+  entranceTile: {fileID: 11400000, guid: de173133f6827a542855ea76b0039a42, type: 2}
+  exitTile: {fileID: 11400000, guid: a23678a110ccd6e459f31d9411caf92f, type: 2}
   doorTile: {fileID: 0}
   trapTile: {fileID: 0}
 --- !u!1 &1388348060
