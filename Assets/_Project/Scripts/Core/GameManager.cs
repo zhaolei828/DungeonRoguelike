@@ -29,7 +29,6 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private int _gold = 0;
     
     // 核心引用
-    // private Hero _hero; // Week 5待实现
     private Level _currentLevel;
     
     // 事件
@@ -108,12 +107,7 @@ public class GameManager : Singleton<GameManager>
     /// <summary>
     /// 当前英雄
     /// </summary>
-    // Week 5待实现
-    // public Hero Hero
-    // {
-    //     get => _hero;
-    //     set => _hero = value;
-    // }
+    public Hero Hero { get; set; }
     
     /// <summary>
     /// 当前关卡
@@ -282,7 +276,7 @@ public class GameManager : Singleton<GameManager>
         CurrentDepth = 1;
         Score = 0;
         Gold = 0;
-        // _hero = null; // Week 5待实现
+        Hero = null;
         _currentLevel = null;
     }
     

@@ -10,7 +10,7 @@ public abstract class Actor : MonoBehaviour
     [SerializeField] protected int maxHp = 20;
     
     // 位置
-    protected Vector2Int pos = Vector2Int.zero;
+    public Vector2Int pos = Vector2Int.zero;
     
     // 属性
     public int Hp => hp;
