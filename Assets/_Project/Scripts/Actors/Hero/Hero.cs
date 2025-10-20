@@ -149,9 +149,9 @@ public class Hero : Actor
     }
     
     /// <summary>
-    /// 移动到指定位置
+    /// 尝试移动到指定位置
     /// </summary>
-    public void MoveTo(Vector2Int targetPos, Level level)
+    public bool TryMoveTo(Vector2Int targetPos, Level level)
     {
         if (level != null && level.IsPassable(targetPos))
         {
@@ -161,14 +161,22 @@ public class Hero : Actor
             pos = targetPos;
             transform.position = new Vector3(targetPos.x + 0.5f, targetPos.y + 0.5f, 0);
             
-            // 更新动画
-            HeroAnimator animator = GetComponent<HeroAnimator>();
-            if (animator != null)
-            {
-                animator.SetAnimationByDirection(direction);
-            }
-            
-            Debug.Log($"Hero moved to {targetPos}");
+            Debug.Log($"<color=green>Hero moved to {targetPos}</color>");
+            return true;
         }
+        else
+        {
+            // 移动失败（撞到墙壁或边界）
+            Debug.Log($"<color=red>Cannot move to {targetPos} (not passable)</color>");
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// 移动到指定位置（旧版本，保持向后兼容）
+    /// </summary>
+    public void MoveTo(Vector2Int targetPos, Level level)
+    {
+        TryMoveTo(targetPos, level);
     }
 }

@@ -10,6 +10,9 @@ public class HeroAnimator : MonoBehaviour
     [Header("动画设置")]
     [SerializeField] private float frameRate = 10f; // 每秒帧数
     [SerializeField] private bool isAnimating = false;
+    [SerializeField] private float idleTimeout = 1f; // Idle动画返回超时
+    
+    private float idleTimer = 0f;
     
     [Header("Sprite引用")]
     [SerializeField] private Sprite[] idleSprites;
@@ -62,6 +65,28 @@ public class HeroAnimator : MonoBehaviour
                 currentFrame = (currentFrame + 1) % currentAnimation.Length;
                 spriteRenderer.sprite = currentAnimation[currentFrame];
             }
+        }
+        
+        // 如果在运动状态超过超时时间，自动返回Idle
+        if (currentState != AnimationState.Idle && currentState != AnimationState.WalkDown && 
+            currentState != AnimationState.WalkUp && currentState != AnimationState.WalkLeft && 
+            currentState != AnimationState.WalkRight)
+        {
+            return;
+        }
+        
+        if (currentState != AnimationState.Idle)
+        {
+            idleTimer += Time.deltaTime;
+            if (idleTimer >= idleTimeout)
+            {
+                SetAnimationState(AnimationState.Idle);
+                idleTimer = 0f;
+            }
+        }
+        else
+        {
+            idleTimer = 0f;
         }
     }
     
