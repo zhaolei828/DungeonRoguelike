@@ -51,6 +51,13 @@ public class HeroAnimator : MonoBehaviour
         {
             spriteRenderer.sprite = idleSprites[0];
         }
+        
+        // 自动加载warrior sprites（如果尚未加载）
+        if ((idleSprites == null || idleSprites.Length == 0) &&
+            (walkDownSprites == null || walkDownSprites.Length == 0))
+        {
+            LoadWarriorSprites();
+        }
     }
     
     private void Update()
@@ -179,13 +186,22 @@ public class HeroAnimator : MonoBehaviour
     /// </summary>
     public void LoadWarriorSprites()
     {
+        // warrior.png中的sprites按以下方式组织：
+        // warrior_0_0 ~ warrior_0_20 = 动作0 (通常是Idle)
+        // warrior_1_0 ~ warrior_1_20 = 动作1
+        // warrior_2_0 ~ warrior_2_20 = 动作2
+        // warrior_3_0 ~ warrior_3_20 = 动作3
+        // warrior_4_0 ~ warrior_4_20 = 动作4
+        // warrior_5_0 ~ warrior_5_20 = 动作5
+        // warrior_6_0 ~ warrior_6_20 = 动作6
+        
         // 从Resources或AssetDatabase加载sprite
         Sprite[] allSprites = Resources.LoadAll<Sprite>("Characters/warrior");
         
         if (allSprites == null || allSprites.Length == 0)
         {
-            Debug.LogWarning("未找到warrior sprites，尝试从AssetDatabase加载...");
-            allSprites = LoadSpritesFromAssetDatabase("Assets/_Project/Art/Sprites/Characters/warrior.png");
+            Debug.LogWarning("未找到warrior sprites在Resources中，尝试从AssetDatabase加载...");
+            allSprites = LoadSpritesFromAssetDatabase();
         }
         
         if (allSprites == null || allSprites.Length == 0)
@@ -194,24 +210,30 @@ public class HeroAnimator : MonoBehaviour
             return;
         }
         
-        Debug.Log($"<color=cyan>加载了 {allSprites.Length} 个warrior sprite</color>");
+        Debug.Log($"<color=cyan>✓ 加载了 {allSprites.Length} 个warrior sprite</color>");
         
-        // 根据sprite名称分配到不同的动画数组
-        // 假设命名格式: warrior_idle_0, warrior_walk_down_0, 等
         AssignSpritesToAnimations(allSprites);
     }
     
     /// <summary>
     /// 从AssetDatabase加载sprites
     /// </summary>
-    private Sprite[] LoadSpritesFromAssetDatabase(string path)
+    private Sprite[] LoadSpritesFromAssetDatabase()
     {
 #if UNITY_EDITOR
+        string path = "Assets/_Project/Art/Sprites/Characters/warrior.png";
         Object[] objects = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path);
         Sprite[] sprites = System.Array.FindAll(objects, obj => obj is Sprite)
             .Select(obj => obj as Sprite).ToArray();
+        
+        if (sprites.Length > 0)
+        {
+            Debug.Log($"✓ 从AssetDatabase加载 {sprites.Length} 个sprites");
+        }
+        
         return sprites;
 #else
+        Debug.LogError("Cannot load sprites from AssetDatabase in Play mode");
         return null;
 #endif
     }
@@ -221,35 +243,52 @@ public class HeroAnimator : MonoBehaviour
     /// </summary>
     private void AssignSpritesToAnimations(Sprite[] allSprites)
     {
-        System.Collections.Generic.List<Sprite> idle = new System.Collections.Generic.List<Sprite>();
-        System.Collections.Generic.List<Sprite> walkDown = new System.Collections.Generic.List<Sprite>();
-        System.Collections.Generic.List<Sprite> walkUp = new System.Collections.Generic.List<Sprite>();
-        System.Collections.Generic.List<Sprite> walkLeft = new System.Collections.Generic.List<Sprite>();
-        System.Collections.Generic.List<Sprite> walkRight = new System.Collections.Generic.List<Sprite>();
+        // 创建字典来存储按动作编号分组的sprites
+        var actionSprites = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<Sprite>>();
+        
+        // 初始化字典
+        for (int i = 0; i <= 6; i++)
+        {
+            actionSprites[i] = new System.Collections.Generic.List<Sprite>();
+        }
         
         foreach (Sprite sprite in allSprites)
         {
             string name = sprite.name.ToLower();
             
-            if (name.Contains("idle"))
-                idle.Add(sprite);
-            else if (name.Contains("walk_down") || name.Contains("down"))
-                walkDown.Add(sprite);
-            else if (name.Contains("walk_up") || name.Contains("up"))
-                walkUp.Add(sprite);
-            else if (name.Contains("walk_left") || name.Contains("left"))
-                walkLeft.Add(sprite);
-            else if (name.Contains("walk_right") || name.Contains("right"))
-                walkRight.Add(sprite);
+            // 匹配 warrior_X_Y 格式（X=动作类型, Y=帧序列）
+            var match = System.Text.RegularExpressions.Regex.Match(name, @"warrior_(\d+)_(\d+)");
+            if (match.Success)
+            {
+                int actionType = int.Parse(match.Groups[1].Value);
+                if (actionType >= 0 && actionType <= 6)
+                {
+                    actionSprites[actionType].Add(sprite);
+                }
+            }
         }
         
-        idleSprites = idle.ToArray();
-        walkDownSprites = walkDown.ToArray();
-        walkUpSprites = walkUp.ToArray();
-        walkLeftSprites = walkLeft.ToArray();
-        walkRightSprites = walkRight.ToArray();
+        // 按SPD的约定，假设：
+        // 动作0 = Idle
+        // 动作1 = WalkDown
+        // 动作2 = WalkUp
+        // 动作3 = WalkLeft
+        // 动作4 = WalkRight
+        // 动作5 = Attack
+        // 动作6 = Death
         
-        Debug.Log($"<color=yellow>动画帧分配: Idle={idleSprites.Length}, Down={walkDownSprites.Length}, Up={walkUpSprites.Length}, Left={walkLeftSprites.Length}, Right={walkRightSprites.Length}</color>");
+        idleSprites = SortAndReturnSprites(actionSprites, 0);
+        walkDownSprites = SortAndReturnSprites(actionSprites, 1);
+        walkUpSprites = SortAndReturnSprites(actionSprites, 2);
+        walkLeftSprites = SortAndReturnSprites(actionSprites, 3);
+        walkRightSprites = SortAndReturnSprites(actionSprites, 4);
+        
+        Debug.Log($"<color=yellow>✓ 动画帧分配完成:</color>");
+        Debug.Log($"  Idle: {idleSprites.Length} frames");
+        Debug.Log($"  WalkDown: {walkDownSprites.Length} frames");
+        Debug.Log($"  WalkUp: {walkUpSprites.Length} frames");
+        Debug.Log($"  WalkLeft: {walkLeftSprites.Length} frames");
+        Debug.Log($"  WalkRight: {walkRightSprites.Length} frames");
         
         // 如果某个方向没有sprite，使用idle作为备用
         if (idleSprites.Length == 0 && allSprites.Length > 0)
@@ -261,6 +300,26 @@ public class HeroAnimator : MonoBehaviour
         if (walkUpSprites.Length == 0) walkUpSprites = idleSprites;
         if (walkLeftSprites.Length == 0) walkLeftSprites = idleSprites;
         if (walkRightSprites.Length == 0) walkRightSprites = idleSprites;
+    }
+    
+    /// <summary>
+    /// 从字典中提取指定动作的sprites并按帧序列排序
+    /// </summary>
+    private Sprite[] SortAndReturnSprites(System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<Sprite>> actionSprites, int actionType)
+    {
+        if (!actionSprites.ContainsKey(actionType) || actionSprites[actionType].Count == 0)
+        {
+            return new Sprite[0];
+        }
+        
+        // 按sprite名称中的帧序列号排序
+        var sorted = actionSprites[actionType].OrderBy(s =>
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(s.name, @"warrior_\d+_(\d+)");
+            return match.Success ? int.Parse(match.Groups[1].Value) : 0;
+        }).ToArray();
+        
+        return sorted;
     }
 }
 
