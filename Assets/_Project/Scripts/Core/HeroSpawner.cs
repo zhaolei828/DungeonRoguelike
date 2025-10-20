@@ -10,11 +10,6 @@ public class HeroSpawner : MonoBehaviour
     
     private Hero currentHero;
     
-    private void Start()
-    {
-        SpawnHero();
-    }
-    
     /// <summary>
     /// 生成英雄
     /// </summary>

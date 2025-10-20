@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// Game场景初始化器 - 负责游戏启动时的初始化
@@ -14,29 +15,46 @@ public class GameInitializer : MonoBehaviour
         
         Debug.Log("=== Level 1 Generated ===");
         
-        // 生成英雄
-        SpawnHero();
+        // 延迟生成英雄和初始化系统，确保所有组件都已就绪
+        StartCoroutine(InitializeGameSystems());
     }
     
     /// <summary>
-    /// 生成英雄
+    /// 初始化游戏系统
     /// </summary>
-    private void SpawnHero()
+    private IEnumerator InitializeGameSystems()
     {
-        // 创建 HeroSpawner
-        GameObject spawnerGO = new GameObject("HeroSpawner");
-        HeroSpawner spawner = spawnerGO.AddComponent<HeroSpawner>();
+        // 等待一帧，确保所有Awake和Start都执行完毕
+        yield return null;
+        
+        // 查找或创建HeroSpawner
+        HeroSpawner spawner = FindFirstObjectByType<HeroSpawner>();
+        if (spawner == null)
+        {
+            GameObject spawnerGO = new GameObject("HeroSpawner");
+            spawner = spawnerGO.AddComponent<HeroSpawner>();
+        }
         
         // 生成英雄
         Hero hero = spawner.SpawnHero(HeroClass.Warrior);
         
         if (hero != null)
         {
-            Debug.Log($"<color=green>=== Hero Spawned: {hero.Class} ===</color>");
+            // 将Hero注册到GameManager
+            GameManager.Instance.Hero = hero;
+            
+            Debug.Log($"<color=green>=== Hero Spawned: {hero.Class} at {hero.pos} ===</color>");
+            
+            // 再等待一帧，确保Hero完全初始化
+            yield return null;
             
             // 添加玩家输入组件
-            GameObject inputGO = new GameObject("PlayerInput");
-            inputGO.AddComponent<PlayerInput>();
+            GameObject inputGO = FindFirstObjectByType<PlayerInput>()?.gameObject;
+            if (inputGO == null)
+            {
+                inputGO = new GameObject("PlayerInput");
+                inputGO.AddComponent<PlayerInput>();
+            }
             
             // 为主相机添加跟随组件
             Camera mainCamera = Camera.main;
@@ -48,6 +66,10 @@ public class GameInitializer : MonoBehaviour
                     cameraFollow = mainCamera.gameObject.AddComponent<CameraFollow>();
                 }
                 cameraFollow.SetTarget(hero.transform);
+                
+                // 立即将相机移动到Hero位置
+                mainCamera.transform.position = new Vector3(hero.pos.x + 0.5f, hero.pos.y + 0.5f, -10f);
+                
                 Debug.Log("<color=cyan>=== Camera Follow Enabled ===</color>");
             }
             else
