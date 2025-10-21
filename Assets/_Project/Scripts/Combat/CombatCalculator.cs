@@ -61,6 +61,34 @@ public static class CombatCalculator
     }
     
     /// <summary>
+    /// 计算Mob对Hero的伤害 (重载)
+    /// </summary>
+    public static int CalculateDamage(Mob attacker, Hero defender)
+    {
+        if (attacker == null || defender == null)
+            return 0;
+        
+        // Mob的基础伤害基于攻击力属性
+        int baseDamage = attacker.AttackPower;
+        
+        // 暴击判定
+        float critChance = attacker.Agility * 0.02f; // 每点敏捷增加2%暴击率
+        float critMultiplier = 1f;
+        
+        if (Random.value < critChance)
+        {
+            critMultiplier = 1.5f; // Mob暴击伤害提高50%
+            Debug.Log($"<color=yellow>暴击！伤害提升50%</color>");
+        }
+        
+        // 最终伤害 = (基础伤害 × 暴击倍数) - 防御减免
+        // Hero的防御基于Armor属性
+        int finalDamage = Mathf.Max(1, (int)(baseDamage * critMultiplier) - defender.Armor);
+        
+        return finalDamage;
+    }
+    
+    /// <summary>
     /// 计算闪躲概率
     /// </summary>
     public static bool TryDodge(Actor defender)
