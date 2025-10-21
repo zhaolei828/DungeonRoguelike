@@ -24,6 +24,8 @@ public class RespawnManager : MonoBehaviour
     
     private int currentRespawnCount = 0;
     private Vector2Int lastCheckpoint = Vector2Int.zero;
+    private Coroutine currentRespawnCoroutine; // 当前重生协程
+    private bool isRespawning = false; // 是否正在重生
     
     private void Awake()
     {
@@ -40,6 +42,13 @@ public class RespawnManager : MonoBehaviour
     /// </summary>
     public void OnHeroDied(Hero hero)
     {
+        // 如果已经在重生中，忽略
+        if (isRespawning)
+        {
+            Debug.Log("<color=yellow>⚠ 重生流程已在进行中，忽略重复调用</color>");
+            return;
+        }
+        
         if (!enableRespawn)
         {
             Debug.Log("<color=red>游戏结束！</color>");
@@ -55,8 +64,16 @@ public class RespawnManager : MonoBehaviour
             return;
         }
         
+        // 停止之前的重生协程（如果有）
+        if (currentRespawnCoroutine != null)
+        {
+            StopCoroutine(currentRespawnCoroutine);
+            Debug.Log("<color=yellow>⚠ 停止了之前的重生协程</color>");
+        }
+        
         // 开始重生流程
-        StartCoroutine(RespawnCoroutine(hero));
+        isRespawning = true;
+        currentRespawnCoroutine = StartCoroutine(RespawnCoroutine(hero));
     }
     
     private IEnumerator RespawnCoroutine(Hero hero)
@@ -74,6 +91,10 @@ public class RespawnManager : MonoBehaviour
         
         currentRespawnCount++;
         Debug.Log($"<color=green>✓ Hero重生成功！重生次数: {currentRespawnCount}</color>");
+        
+        // 重生完成，重置标记
+        isRespawning = false;
+        currentRespawnCoroutine = null;
     }
     
     private void RespawnHero(Hero hero, Vector2Int position)
@@ -105,7 +126,16 @@ public class RespawnManager : MonoBehaviour
             {
                 HealthBar newHealthBar = HealthBarManager.Instance.CreateHealthBar(hero.transform, hero.MaxHp, new Vector3(0, 0.8f, 0));
                 healthBarField.SetValue(hero, newHealthBar);
+                Debug.Log($"<color=cyan>✓ 重新创建Hero血条</color>");
             }
+            else
+            {
+                Debug.LogError("RespawnManager: 无法找到healthBar字段！");
+            }
+        }
+        else
+        {
+            Debug.LogError("RespawnManager: HealthBarManager.Instance为null！");
         }
         
         // 重新激活GameObject（如果被禁用）

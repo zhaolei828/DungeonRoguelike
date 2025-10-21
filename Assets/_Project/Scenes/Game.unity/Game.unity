@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 109405223}
   - component: {fileID: 109405222}
+  - component: {fileID: 109405224}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -164,6 +165,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &109405224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109405221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4568c31fb5f1c6644b2976a887e8f4e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  respawnDelay: 2
+  enableRespawn: 1
+  maxRespawnCount: -1
+  defaultRespawnPos: {x: 5, y: 5}
+  findSafePosition: 1
+  respawnHealthPercent: 1
+  clearDebuffs: 1
 --- !u!1 &228018475
 GameObject:
   m_ObjectHideFlags: 0

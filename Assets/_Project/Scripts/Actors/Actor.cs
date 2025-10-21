@@ -30,9 +30,24 @@ public abstract class Actor : MonoBehaviour
         pos = new Vector2Int((int)transform.position.x, (int)transform.position.y);
         
         // 创建血条
-        if (showHealthBar && HealthBarManager.Instance != null)
+        if (showHealthBar)
         {
-            healthBar = HealthBarManager.Instance.CreateHealthBar(transform, maxHp, healthBarOffset);
+            if (HealthBarManager.Instance != null)
+            {
+                healthBar = HealthBarManager.Instance.CreateHealthBar(transform, maxHp, healthBarOffset);
+                if (healthBar != null)
+                {
+                    Debug.Log($"<color=cyan>✓ {gameObject.name} 血条创建成功</color>");
+                }
+                else
+                {
+                    Debug.LogError($"{gameObject.name}: CreateHealthBar返回null！");
+                }
+            }
+            else
+            {
+                Debug.LogError($"{gameObject.name}: HealthBarManager.Instance为null，无法创建血条！");
+            }
         }
     }
     
