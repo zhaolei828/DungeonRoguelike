@@ -84,7 +84,8 @@ public class MobSpawnerTool
         
         // 添加SpriteRenderer用于显示
         SpriteRenderer spriteRenderer = mobGO.AddComponent<SpriteRenderer>();
-        spriteRenderer.sprite = null; // 需要美术配置sprite
+        // 尝试加载sprite（如果没有，Mob.Start()会创建占位符）
+        spriteRenderer.sprite = TryLoadMobSprite(prefabName);
         
         // 添加BoxCollider2D用于碰撞
         BoxCollider2D collider = mobGO.AddComponent<BoxCollider2D>();
@@ -110,12 +111,43 @@ public class MobSpawnerTool
         Mob mob = mobGO.AddComponent<T>();
         
         SpriteRenderer spriteRenderer = mobGO.AddComponent<SpriteRenderer>();
+        // 尝试加载sprite（如果没有，Mob.Start()会创建占位符）
+        spriteRenderer.sprite = TryLoadMobSprite(typeof(T).Name);
+        
         BoxCollider2D collider = mobGO.AddComponent<BoxCollider2D>();
         collider.size = new Vector2(1, 1);
         collider.isTrigger = true;
         
         Vector2Int randomPos = GetRandomPassablePosition(level);
         mobGO.transform.position = new Vector3(randomPos.x + 0.5f, randomPos.y + 0.5f, 0);
+    }
+    
+    /// <summary>
+    /// 尝试从Resources或AssetDatabase加载怪物sprite
+    /// </summary>
+    private static Sprite TryLoadMobSprite(string mobTypeName)
+    {
+        // 尝试从多个可能的路径加载
+        string[] possiblePaths = new string[]
+        {
+            $"Assets/_Project/Art/Sprites/Enemies/{mobTypeName}.png",
+            $"Assets/_Project/Sprites/Enemies/{mobTypeName}.png",
+            $"Assets/_Project/Art/Sprites/Characters/{mobTypeName}.png",
+        };
+        
+        foreach (string path in possiblePaths)
+        {
+            Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            if (sprite != null)
+            {
+                Debug.Log($"<color=cyan>✓ 加载怪物sprite: {path}</color>");
+                return sprite;
+            }
+        }
+        
+        // 没找到sprite，返回null（Mob.Start()会创建占位符）
+        Debug.Log($"<color=yellow>⚠ 未找到 {mobTypeName} 的sprite，将使用占位符</color>");
+        return null;
     }
     
     /// <summary>
