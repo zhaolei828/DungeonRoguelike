@@ -85,8 +85,8 @@ public class HealthBarManager : MonoBehaviour
         
         // 设置Canvas大小
         RectTransform canvasRect = healthBarGO.GetComponent<RectTransform>();
-        canvasRect.sizeDelta = new Vector2(barSize.x, barSize.y);
-        canvasRect.localScale = Vector3.one * 0.01f; // 缩小以适应世界空间
+        canvasRect.sizeDelta = new Vector2(barSize.x * 100, barSize.y * 100); // 放大100倍
+        canvasRect.localScale = Vector3.one * 0.01f; // 然后缩小到0.01，最终效果是原大小
         
         // 添加CanvasScaler
         CanvasScaler scaler = healthBarGO.AddComponent<CanvasScaler>();

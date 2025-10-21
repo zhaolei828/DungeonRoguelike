@@ -69,6 +69,8 @@ public class HealthBar : MonoBehaviour
         
         UpdateColor(1f);
         UpdateVisibility(true);
+        
+        Debug.Log($"<color=green>HealthBar.Initialize完成！target: {target.name}, maxHP: {maxHP}, offset: {offset}</color>");
     }
     
     /// <summary>
