@@ -14,6 +14,9 @@ public class Mob : Actor
     [SerializeField] private int defense = 1;
     [SerializeField] private int agility = 2;
     
+    [Header("显示设置")]
+    [SerializeField] private float spriteScale = 2.5f; // Sprite缩放倍数
+    
     // 属性
     public string MobName => mobName;
     public int Level => level;
@@ -57,6 +60,9 @@ public class Mob : Actor
         {
             CreatePlaceholderSprite(spriteRenderer);
         }
+        
+        // 设置sprite缩放（让怪物更容易看清）
+        transform.localScale = Vector3.one * spriteScale;
         
         // 获取AI行为组件
         aiBehavior = GetComponent<IAIBehavior>();

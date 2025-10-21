@@ -12,6 +12,7 @@ public class LevelManager : Singleton<LevelManager>
     // 当前关卡引用
     private Level _currentLevel;
     private LevelGenerator _levelGenerator;
+    private MobSpawner _mobSpawner;
     
     // 事件
     public System.Action<Level> OnLevelGenerated;
@@ -53,6 +54,25 @@ public class LevelManager : Singleton<LevelManager>
                 }
             }
             return _levelGenerator;
+        }
+    }
+    
+    /// <summary>
+    /// 怪物生成器
+    /// </summary>
+    public MobSpawner MobSpawner
+    {
+        get
+        {
+            if (_mobSpawner == null)
+            {
+                _mobSpawner = GetComponent<MobSpawner>();
+                if (_mobSpawner == null)
+                {
+                    _mobSpawner = gameObject.AddComponent<MobSpawner>();
+                }
+            }
+            return _mobSpawner;
         }
     }
     
@@ -114,6 +134,13 @@ public class LevelManager : Singleton<LevelManager>
             }
             
             CurrentLevel = newLevel;
+            
+            // 生成怪物
+            if (MobSpawner != null)
+            {
+                MobSpawner.SpawnMobsForLevel(CurrentLevel);
+            }
+            
             OnLevelGenerated?.Invoke(CurrentLevel);
             
             Debug.Log($"Level {depth} generated and rendered successfully");
