@@ -25,6 +25,7 @@ public class HealthBarManager : MonoBehaviour
             return;
         }
         _instance = this;
+        Debug.Log($"<color=green>✓✓✓ HealthBarManager 已初始化！Instance: {_instance != null}</color>");
     }
     
     /// <summary>
@@ -32,6 +33,8 @@ public class HealthBarManager : MonoBehaviour
     /// </summary>
     public HealthBar CreateHealthBar(Transform target, float maxHP, Vector3 offset)
     {
+        Debug.Log($"<color=cyan>HealthBarManager.CreateHealthBar 被调用！target: {target.name}, maxHP: {maxHP}</color>");
+        
         GameObject healthBarGO;
         
         if (healthBarPrefab != null)
@@ -62,6 +65,8 @@ public class HealthBarManager : MonoBehaviour
         
         // 初始化
         healthBar.Initialize(target, maxHP);
+        
+        Debug.Log($"<color=green>HealthBarManager.CreateHealthBar 成功！返回血条: {healthBar != null}</color>");
         
         return healthBar;
     }

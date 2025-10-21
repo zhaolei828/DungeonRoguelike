@@ -26,6 +26,7 @@ public class DamageNumberManager : MonoBehaviour
             return;
         }
         _instance = this;
+        Debug.Log($"<color=green>✓✓✓ DamageNumberManager 已初始化！Instance: {_instance != null}</color>");
     }
     
     /// <summary>
