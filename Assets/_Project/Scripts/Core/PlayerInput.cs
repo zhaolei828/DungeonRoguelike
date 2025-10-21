@@ -74,6 +74,46 @@ public class PlayerInput : MonoBehaviour
                 moveTimer = moveCooldown;
             }
         }
+        
+        // 检测E键攻击
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            TryAttackNearbyEnemy();
+        }
+    }
+    
+    /// <summary>
+    /// 尝试攻击附近的敌人
+    /// </summary>
+    private void TryAttackNearbyEnemy()
+    {
+        if (hero == null)
+            return;
+        
+        // 搜索附近的Mob
+        Mob[] allMobs = FindObjectsByType<Mob>(FindObjectsSortMode.None);
+        Mob nearestMob = null;
+        int nearestDistance = int.MaxValue;
+        
+        foreach (Mob mob in allMobs)
+        {
+            int distance = CombatCalculator.CalculateDistance(hero, mob);
+            if (distance <= 1 && distance < nearestDistance)  // 相邻位置
+            {
+                nearestMob = mob;
+                nearestDistance = distance;
+            }
+        }
+        
+        if (nearestMob != null)
+        {
+            // 启动战斗
+            TurnManager.Instance.StartBattle(hero, nearestMob);
+        }
+        else
+        {
+            Debug.Log("附近没有敌人！");
+        }
     }
 }
 
