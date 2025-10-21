@@ -40,22 +40,21 @@ public class MobSpawnerTool
     [MenuItem("Tools/Dungeon/Spawn Mob/Random Mix (5个怪物混合)")]
     public static void SpawnRandomMix()
     {
-        Level currentLevel = Object.FindObjectOfType<Level>();
-        if (currentLevel == null)
-        {
-            EditorUtility.DisplayDialog("错误", "场景中未找到Level组件！", "确定");
-            return;
-        }
+        Level currentLevel = Object.FindAnyObjectByType<Level>();
         
         // 在5个不同位置生成不同类型的怪物
-        SpawnMobAtRandomPosition<Rat>("老鼠");
-        SpawnMobAtRandomPosition<Bat>("蝙蝠");
-        SpawnMobAtRandomPosition<Spider>("蜘蛛");
-        SpawnMobAtRandomPosition<Goblin>("地精");
-        SpawnMobAtRandomPosition<Orc>("兽人");
+        SpawnMobAtRandomPosition<Rat>("老鼠", currentLevel);
+        SpawnMobAtRandomPosition<Bat>("蝙蝠", currentLevel);
+        SpawnMobAtRandomPosition<Spider>("蜘蛛", currentLevel);
+        SpawnMobAtRandomPosition<Goblin>("地精", currentLevel);
+        SpawnMobAtRandomPosition<Orc>("兽人", currentLevel);
+        
+        string message = currentLevel != null 
+            ? "已生成5个怪物混合小队！\n按Play进入游戏体验战斗系统。"
+            : "已生成5个怪物混合小队！\n位置随机分布在场景中。\n按Play后需要手动调整位置。";
         
         Debug.Log("<color=green>✓ 已生成5个怪物混合小队</color>");
-        EditorUtility.DisplayDialog("成功", "已生成5个怪物混合小队！\n按Play进入游戏体验战斗系统。", "确定");
+        EditorUtility.DisplayDialog("成功", message, "确定");
     }
     
     /// <summary>
@@ -70,7 +69,7 @@ public class MobSpawnerTool
             return;
         }
         
-        Level currentLevel = Object.FindObjectOfType<Level>();
+        Level currentLevel = Object.FindAnyObjectByType<Level>();
         if (currentLevel == null)
         {
             EditorUtility.DisplayDialog("错误", "场景中未找到Level组件！", "确定");
@@ -105,12 +104,8 @@ public class MobSpawnerTool
     /// <summary>
     /// 在随机可通行位置生成怪物
     /// </summary>
-    private static void SpawnMobAtRandomPosition<T>(string mobName) where T : Mob
+    private static void SpawnMobAtRandomPosition<T>(string mobName, Level level) where T : Mob
     {
-        Level currentLevel = Object.FindObjectOfType<Level>();
-        if (currentLevel == null)
-            return;
-        
         GameObject mobGO = new GameObject(mobName);
         Mob mob = mobGO.AddComponent<T>();
         
@@ -119,7 +114,7 @@ public class MobSpawnerTool
         collider.size = new Vector2(1, 1);
         collider.isTrigger = true;
         
-        Vector2Int randomPos = GetRandomPassablePosition(currentLevel);
+        Vector2Int randomPos = GetRandomPassablePosition(level);
         mobGO.transform.position = new Vector3(randomPos.x + 0.5f, randomPos.y + 0.5f, 0);
     }
     
@@ -128,6 +123,15 @@ public class MobSpawnerTool
     /// </summary>
     private static Vector2Int GetRandomPassablePosition(Level level)
     {
+        // 如果没有Level，使用简单的随机位置
+        if (level == null)
+        {
+            return new Vector2Int(
+                Random.Range(5, 20),
+                Random.Range(5, 20)
+            );
+        }
+        
         Vector2Int pos;
         int attempts = 0;
         
