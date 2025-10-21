@@ -127,12 +127,15 @@ public class MobSpawnerTool
     /// </summary>
     private static Sprite TryLoadMobSprite(string mobTypeName)
     {
+        // 映射Unity类名到SPD sprite文件名
+        string spriteFileName = GetSpriteFileName(mobTypeName);
+        
         // 尝试从多个可能的路径加载
         string[] possiblePaths = new string[]
         {
-            $"Assets/_Project/Art/Sprites/Enemies/{mobTypeName}.png",
-            $"Assets/_Project/Sprites/Enemies/{mobTypeName}.png",
-            $"Assets/_Project/Art/Sprites/Characters/{mobTypeName}.png",
+            $"Assets/_Project/Art/Sprites/Enemies/{spriteFileName}.png",
+            $"Assets/_Project/Sprites/Enemies/{spriteFileName}.png",
+            $"Assets/_Project/Art/Sprites/Characters/{spriteFileName}.png",
         };
         
         foreach (string path in possiblePaths)
@@ -146,8 +149,24 @@ public class MobSpawnerTool
         }
         
         // 没找到sprite，返回null（Mob.Start()会创建占位符）
-        Debug.Log($"<color=yellow>⚠ 未找到 {mobTypeName} 的sprite，将使用占位符</color>");
+        Debug.Log($"<color=yellow>⚠ 未找到 {mobTypeName} 的sprite ({spriteFileName}.png)，将使用占位符</color>");
         return null;
+    }
+    
+    /// <summary>
+    /// 将Unity怪物类名映射到SPD sprite文件名
+    /// </summary>
+    private static string GetSpriteFileName(string mobTypeName)
+    {
+        switch (mobTypeName)
+        {
+            case "Rat": return "rat";
+            case "Bat": return "bat";
+            case "Spider": return "Spider"; // 我们重命名为Spider.png
+            case "Goblin": return "gnoll"; // SPD中地精叫gnoll
+            case "Orc": return "brute"; // SPD中兽人叫brute
+            default: return mobTypeName.ToLower();
+        }
     }
     
     /// <summary>
