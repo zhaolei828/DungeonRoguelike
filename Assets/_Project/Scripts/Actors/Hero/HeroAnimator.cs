@@ -11,6 +11,7 @@ public class HeroAnimator : MonoBehaviour
     [SerializeField] private float frameRate = 10f; // 每秒帧数
     [SerializeField] private bool isAnimating = false;
     [SerializeField] private float idleTimeout = 1f; // Idle动画返回超时
+    [SerializeField] private int maxFramesPerAnimation = 4; // 每个动画最多使用的帧数（避免播放所有21帧）
     
     private float idleTimer = 0f;
     
@@ -318,6 +319,14 @@ public class HeroAnimator : MonoBehaviour
             var match = System.Text.RegularExpressions.Regex.Match(s.name, @"warrior_\d+_(\d+)");
             return match.Success ? int.Parse(match.Groups[1].Value) : 0;
         }).ToArray();
+        
+        // 限制帧数：只取前N帧（避免播放所有21帧，包括死亡等不需要的帧）
+        int framesToUse = Mathf.Min(sorted.Length, maxFramesPerAnimation);
+        if (framesToUse < sorted.Length)
+        {
+            Debug.Log($"  动作{actionType}: 限制为前{framesToUse}帧 (总共{sorted.Length}帧)");
+            System.Array.Resize(ref sorted, framesToUse);
+        }
         
         return sorted;
     }
