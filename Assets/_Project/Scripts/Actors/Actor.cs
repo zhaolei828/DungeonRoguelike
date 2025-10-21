@@ -96,8 +96,20 @@ public abstract class Actor : MonoBehaviour
         if (healthBar != null)
         {
             Destroy(healthBar.gameObject);
+            healthBar = null;
         }
         
+        // 如果是Hero，触发重生系统
+        if (this is Hero hero)
+        {
+            if (RespawnManager.Instance != null)
+            {
+                RespawnManager.Instance.OnHeroDied(hero);
+                return; // 不销毁Hero，由重生系统处理
+            }
+        }
+        
+        // 非Hero或没有重生系统，直接销毁
         Destroy(gameObject);
     }
     

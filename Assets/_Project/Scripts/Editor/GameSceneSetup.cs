@@ -133,6 +133,20 @@ public class GameSceneSetup : EditorWindow
                 Debug.Log("✓ 创建 GameManager");
             }
         }
+        
+        // 添加RespawnManager到Managers
+        if (managersGO.GetComponent<RespawnManager>() == null)
+        {
+            RespawnManager respawnManager = managersGO.AddComponent<RespawnManager>();
+            Debug.Log("✓ 添加 RespawnManager");
+            
+            // 设置默认值
+            SerializedObject so = new SerializedObject(respawnManager);
+            so.FindProperty("respawnDelay").floatValue = 2f;
+            so.FindProperty("enableRespawn").boolValue = true;
+            so.FindProperty("respawnHealthPercent").floatValue = 1f;
+            so.ApplyModifiedProperties();
+        }
     }
     
     private static void SetupCamera()

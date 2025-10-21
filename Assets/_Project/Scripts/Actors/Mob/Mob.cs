@@ -230,9 +230,9 @@ public class Mob : Actor
     /// <summary>
     /// 受到伤害
     /// </summary>
-    public override void TakeDamage(int damage)
+    public override void TakeDamage(int damage, bool isCritical = false)
     {
-        base.TakeDamage(damage);
+        base.TakeDamage(damage, isCritical);
         
         if (hp > 0 && !isInCombat)
         {

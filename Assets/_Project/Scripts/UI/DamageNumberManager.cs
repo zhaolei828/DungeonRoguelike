@@ -15,6 +15,7 @@ public class DamageNumberManager : MonoBehaviour
     [Header("自动创建设置")]
     [SerializeField] private bool autoCreatePrefab = true;
     [SerializeField] private int fontSize = 24;
+    [Tooltip("推荐手动分配字体以获得更好显示效果。留空将使用Unity内置的LegacyRuntime字体")]
     [SerializeField] private Font font;
     
     private void Awake()
@@ -104,7 +105,7 @@ public class DamageNumberManager : MonoBehaviour
         textGO.transform.SetParent(damageNumberGO.transform, false);
         
         Text text = textGO.AddComponent<Text>();
-        text.font = font != null ? font : Resources.GetBuiltinResource<Font>("Arial.ttf");
+        text.font = font != null ? font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         text.fontSize = fontSize;
         text.alignment = TextAnchor.MiddleCenter;
         text.color = Color.white;
