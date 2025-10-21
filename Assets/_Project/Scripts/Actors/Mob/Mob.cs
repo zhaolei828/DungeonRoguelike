@@ -126,6 +126,24 @@ public class Mob : Actor
     }
     
     /// <summary>
+    /// 尝试攻击Hero目标 (重载)
+    /// </summary>
+    public bool TryAttack(Hero target)
+    {
+        if (target == null)
+            return false;
+        
+        // 计算伤害
+        int damage = CombatCalculator.CalculateDamage(this, target);
+        
+        target.TakeDamage(damage);
+        
+        Debug.Log($"<color=red>{MobName} 对 Hero 造成 {damage} 伤害</color>");
+        
+        return true;
+    }
+    
+    /// <summary>
     /// 尝试移动
     /// </summary>
     public bool TryMoveTo(Vector2Int targetPos, Level level)
