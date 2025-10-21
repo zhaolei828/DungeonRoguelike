@@ -45,6 +45,19 @@ public class Mob : Actor
     {
         base.Start();
         
+        // 确保有SpriteRenderer
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+        }
+        
+        // 如果没有sprite，创建临时占位符
+        if (spriteRenderer.sprite == null)
+        {
+            CreatePlaceholderSprite(spriteRenderer);
+        }
+        
         // 获取AI行为组件
         aiBehavior = GetComponent<IAIBehavior>();
         if (aiBehavior == null)
@@ -55,7 +68,57 @@ public class Mob : Actor
             aiBehavior = GetComponent<IAIBehavior>();
         }
         
-        Debug.Log($"<color=cyan>✓ {MobName} (Lv.{level}) 生成 - HP: {hp}/{maxHp}, 攻击力: {attackPower}</color>");
+        Debug.Log($"<color=cyan>✓ {MobName} (Lv.{level}) 生成 - HP: {hp}/{maxHp}, 攻击力: {attackPower}, 位置: {transform.position}</color>");
+    }
+    
+    /// <summary>
+    /// 创建临时占位符sprite（用于测试）
+    /// </summary>
+    private void CreatePlaceholderSprite(SpriteRenderer spriteRenderer)
+    {
+        // 创建一个简单的颜色方块作为占位符
+        Texture2D texture = new Texture2D(32, 32);
+        Color mobColor = GetMobColor();
+        
+        // 填充纯色
+        for (int y = 0; y < 32; y++)
+        {
+            for (int x = 0; x < 32; x++)
+            {
+                // 添加边框效果
+                if (x == 0 || x == 31 || y == 0 || y == 31)
+                {
+                    texture.SetPixel(x, y, Color.black);
+                }
+                else
+                {
+                    texture.SetPixel(x, y, mobColor);
+                }
+            }
+        }
+        
+        texture.Apply();
+        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, 32, 32), new Vector2(0.5f, 0.5f), 32);
+        spriteRenderer.sprite = sprite;
+        
+        Debug.Log($"<color=yellow>⚠ {MobName} 使用临时占位符sprite (颜色: {mobColor})</color>");
+    }
+    
+    /// <summary>
+    /// 根据怪物类型返回不同颜色
+    /// </summary>
+    private Color GetMobColor()
+    {
+        // 根据怪物名称返回不同颜色
+        switch (mobName)
+        {
+            case "老鼠": return new Color(0.6f, 0.4f, 0.2f); // 棕色
+            case "蝙蝠": return new Color(0.3f, 0.3f, 0.3f); // 深灰色
+            case "蜘蛛": return new Color(0.2f, 0.2f, 0.2f); // 黑色
+            case "地精": return new Color(0.4f, 0.7f, 0.3f); // 绿色
+            case "兽人": return new Color(0.7f, 0.3f, 0.3f); // 红色
+            default: return new Color(0.8f, 0.2f, 0.8f);     // 紫色（未知类型）
+        }
     }
     
     private void Update()
