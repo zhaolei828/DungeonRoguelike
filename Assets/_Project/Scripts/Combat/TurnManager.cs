@@ -153,8 +153,7 @@ public class TurnManager : Singleton<TurnManager>
         }
         
         // 计算伤害
-        int damage = CombatCalculator.CalculateDamage(enemy, null);
-        if (damage <= 0) damage = 1;
+        int damage = CombatCalculator.CalculateDamage(enemy, currentHero);
         
         // 应用伤害到Hero
         currentHero.TakeDamage(damage);
