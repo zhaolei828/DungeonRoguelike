@@ -40,22 +40,22 @@ public class PlayerInput : MonoBehaviour
         // 更新移动冷却计时
         moveTimer -= Time.deltaTime;
         
-        // 检测方向键输入
+        // 检测方向键输入（使用GetKey支持按住持续移动）
         Vector2Int moveDirection = Vector2Int.zero;
         
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
         {
             moveDirection = new Vector2Int(0, 1);
         }
-        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
         {
             moveDirection = new Vector2Int(0, -1);
         }
-        else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+        else if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
             moveDirection = new Vector2Int(-1, 0);
         }
-        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
             moveDirection = new Vector2Int(1, 0);
         }
