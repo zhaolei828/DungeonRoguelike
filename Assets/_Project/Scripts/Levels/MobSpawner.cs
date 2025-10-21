@@ -123,11 +123,15 @@ public class MobSpawner : MonoBehaviour
         mob.pos = spawnPos;
         mobGO.transform.position = new Vector3(spawnPos.x + 0.5f, spawnPos.y + 0.5f, 0);
         
-        // 添加SpriteRenderer（Mob.Start()会处理sprite加载）
-        if (mobGO.GetComponent<SpriteRenderer>() == null)
+        // 添加SpriteRenderer并加载sprite
+        SpriteRenderer spriteRenderer = mobGO.GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
         {
-            mobGO.AddComponent<SpriteRenderer>();
+            spriteRenderer = mobGO.AddComponent<SpriteRenderer>();
         }
+        
+        // 运行时加载sprite（从Resources文件夹）
+        LoadMobSprite(spriteRenderer, mobType);
         
         // 添加碰撞体
         BoxCollider2D collider = mobGO.AddComponent<BoxCollider2D>();
@@ -240,6 +244,45 @@ public class MobSpawner : MonoBehaviour
             case MobType.Goblin: return "地精";
             case MobType.Orc: return "兽人";
             default: return "怪物";
+        }
+    }
+    
+    /// <summary>
+    /// 运行时加载怪物sprite（从Resources文件夹）
+    /// </summary>
+    private void LoadMobSprite(SpriteRenderer spriteRenderer, MobType mobType)
+    {
+        // 映射怪物类型到sprite文件名
+        string spriteFileName = GetSpriteFileName(mobType);
+        
+        // 从Resources加载sprite
+        Sprite sprite = Resources.Load<Sprite>($"Sprites/Enemies/{spriteFileName}");
+        
+        if (sprite != null)
+        {
+            spriteRenderer.sprite = sprite;
+            Debug.Log($"<color=cyan>    ✓ 加载sprite: {spriteFileName}</color>");
+        }
+        else
+        {
+            Debug.LogWarning($"<color=yellow>    ⚠ 未找到sprite: Sprites/Enemies/{spriteFileName}，将使用占位符</color>");
+            // sprite为null时，Mob.Start()会创建占位符
+        }
+    }
+    
+    /// <summary>
+    /// 将怪物类型映射到sprite文件名（与MobSpawnerTool保持一致）
+    /// </summary>
+    private string GetSpriteFileName(MobType mobType)
+    {
+        switch (mobType)
+        {
+            case MobType.Rat: return "rat";
+            case MobType.Bat: return "bat";
+            case MobType.Spider: return "Spider"; // 注意大小写
+            case MobType.Goblin: return "gnoll"; // SPD中地精叫gnoll
+            case MobType.Orc: return "brute"; // SPD中兽人叫brute
+            default: return mobType.ToString().ToLower();
         }
     }
     
