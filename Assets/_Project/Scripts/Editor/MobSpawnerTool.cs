@@ -40,7 +40,7 @@ public class MobSpawnerTool
     [MenuItem("Tools/Dungeon/Spawn Mob/Random Mix (5个怪物混合)")]
     public static void SpawnRandomMix()
     {
-        Level currentLevel = FindFirstObjectByType<Level>();
+        Level currentLevel = FindObjectOfType<Level>();
         if (currentLevel == null)
         {
             EditorUtility.DisplayDialog("错误", "场景中未找到Level组件！", "确定");
@@ -70,7 +70,7 @@ public class MobSpawnerTool
             return;
         }
         
-        Level currentLevel = FindFirstObjectByType<Level>();
+        Level currentLevel = FindObjectOfType<Level>();
         if (currentLevel == null)
         {
             EditorUtility.DisplayDialog("错误", "场景中未找到Level组件！", "确定");
@@ -107,7 +107,7 @@ public class MobSpawnerTool
     /// </summary>
     private static void SpawnMobAtRandomPosition<T>(string mobName) where T : Mob
     {
-        Level currentLevel = FindFirstObjectByType<Level>();
+        Level currentLevel = FindObjectOfType<Level>();
         if (currentLevel == null)
             return;
         
