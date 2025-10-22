@@ -123,7 +123,30 @@ public class LoopBuilder : ILevelBuilder
         
         while (rooms.Count < roomsToPlace + 2 && attempts < maxAttempts) // +2 for entrance and exit
         {
-            StandardRoom newRoom = new StandardRoom(minRoomSize, maxRoomSize);
+            // 随机选择房间类型（40%概率生成PatchRoom）
+            StandardRoom newRoom;
+            float roomTypeRoll = (float)random.NextDouble();
+            
+            if (roomTypeRoll < 0.15f)
+            {
+                // 15%概率：草地墓地房间
+                newRoom = new GrassyGraveRoom();
+            }
+            else if (roomTypeRoll < 0.28f)
+            {
+                // 13%概率：废墟房间
+                newRoom = new RuinsRoom();
+            }
+            else if (roomTypeRoll < 0.40f)
+            {
+                // 12%概率：柱子房间
+                newRoom = new PillarsRoom();
+            }
+            else
+            {
+                // 60%概率：标准房间
+                newRoom = new StandardRoom(minRoomSize, maxRoomSize);
+            }
             
             // 先设置位置（使用安全边距）
             int posX = random.Next(1, maxX);

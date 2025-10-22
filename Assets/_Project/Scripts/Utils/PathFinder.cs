@@ -373,6 +373,104 @@ public static class PathFinder
         // 如果找不到，返回起点
         return from;
     }
+    
+    /// <summary>
+    /// 构建局部距离地图（用于房间内部验证）
+    /// 这个版本使用1D数组和索引，适合PatchRoom使用
+    /// </summary>
+    /// <param name="startIdx">起点索引（在1D数组中）</param>
+    /// <param name="walkable">可通行数组（true=可走，false=墙）</param>
+    /// <param name="width">区域宽度</param>
+    /// <param name="height">区域高度</param>
+    /// <returns>距离数组（1D），不可达的位置为int.MaxValue</returns>
+    public static int[] BuildDistanceMapLocal(int startIdx, bool[] walkable, int width, int height)
+    {
+        int size = width * height;
+        
+        if (walkable.Length != size)
+        {
+            Debug.LogError($"Walkable array size mismatch: {walkable.Length} != {size}");
+            return new int[size];
+        }
+        
+        int[] distance = new int[size];
+        
+        // 初始化为不可达
+        for (int i = 0; i < size; i++)
+        {
+            distance[i] = int.MaxValue;
+        }
+        
+        // 起点必须可通行
+        if (startIdx < 0 || startIdx >= size || !walkable[startIdx])
+        {
+            Debug.LogWarning($"Invalid start index {startIdx} or not walkable");
+            return distance;
+        }
+        
+        // BFS
+        Queue<int> queue = new Queue<int>();
+        queue.Enqueue(startIdx);
+        distance[startIdx] = 0;
+        
+        while (queue.Count > 0)
+        {
+            int currentIdx = queue.Dequeue();
+            int x = currentIdx % width;
+            int y = currentIdx / width;
+            int currentDist = distance[currentIdx];
+            
+            // 检查四个方向
+            int[] dx = { 0, 0, -1, 1 };
+            int[] dy = { 1, -1, 0, 0 };
+            
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                
+                // 边界检查
+                if (nx < 0 || nx >= width || ny < 0 || ny >= height)
+                    continue;
+                
+                int nextIdx = nx + ny * width;
+                
+                // 可通行且未访问
+                if (walkable[nextIdx] && distance[nextIdx] == int.MaxValue)
+                {
+                    distance[nextIdx] = currentDist + 1;
+                    queue.Enqueue(nextIdx);
+                }
+            }
+        }
+        
+        return distance;
+    }
+    
+    /// <summary>
+    /// 检查局部区域的连通性（用于房间验证）
+    /// </summary>
+    /// <param name="startIdx">起点索引</param>
+    /// <param name="walkable">可通行数组</param>
+    /// <param name="width">区域宽度</param>
+    /// <param name="height">区域高度</param>
+    /// <returns>是否所有可通行区域都连通</returns>
+    public static bool IsLocalAreaFullyConnected(int startIdx, bool[] walkable, int width, int height)
+    {
+        int[] distance = BuildDistanceMapLocal(startIdx, walkable, width, height);
+        
+        // 检查所有可通行的格子是否都可达
+        for (int i = 0; i < walkable.Length; i++)
+        {
+            if (walkable[i] && distance[i] == int.MaxValue)
+            {
+                // 发现孤立的可通行区域
+                return false;
+            }
+        }
+        
+        return true;
+    }
 }
 
 /// <summary>
