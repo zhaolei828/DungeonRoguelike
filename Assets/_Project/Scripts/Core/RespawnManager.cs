@@ -217,6 +217,26 @@ public class RespawnManager : MonoBehaviour
     
     private bool IsSafePosition(Vector2Int pos)
     {
+        // 检查位置是否在地图范围内
+        Level currentLevel = LevelManager.Instance?.CurrentLevel;
+        if (currentLevel == null)
+            return false;
+        
+        if (!currentLevel.IsValidPosition(pos.x, pos.y))
+            return false;
+        
+        // 检查是否可通行
+        if (!currentLevel.IsPassable(pos.x, pos.y))
+            return false;
+        
+        // 检查是否可从入口到达（防止重生在封闭区域）
+        Vector2Int entrance = currentLevel.EntrancePos;
+        if (entrance != Vector2Int.zero && !PathFinder.IsReachable(currentLevel, entrance, pos))
+        {
+            Debug.LogWarning($"位置 {pos} 从入口 {entrance} 不可达，跳过");
+            return false;
+        }
+        
         // 检查附近是否有敌人
         Mob[] mobs = FindObjectsByType<Mob>(FindObjectsSortMode.None);
         foreach (Mob mob in mobs)

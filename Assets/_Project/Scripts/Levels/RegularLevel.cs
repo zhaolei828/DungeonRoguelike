@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// 常规关卡
@@ -328,11 +329,178 @@ public class RegularLevel : Level
     /// </summary>
     private void PostProcess()
     {
-        // 添加一些装饰性元素
+        // 1. 验证地图连通性
+        ValidateAndFixConnectivity();
+        
+        // 2. 添加一些装饰性元素
         AddDecorations();
         
-        // 清理孤立的地板
+        // 3. 清理孤立的地板
         CleanupIsolatedFloors();
+    }
+    
+    /// <summary>
+    /// 验证并修复地图连通性
+    /// </summary>
+    private void ValidateAndFixConnectivity()
+    {
+        Debug.Log("<color=yellow>━━━ 开始验证地图连通性 ━━━</color>");
+        
+        // 查找入口和出口房间
+        Room entranceRoom = null;
+        Room exitRoom = null;
+        
+        foreach (Room room in rooms)
+        {
+            if (room is EntranceRoom)
+                entranceRoom = room;
+            else if (room is ExitRoom)
+                exitRoom = room;
+        }
+        
+        if (entranceRoom == null || exitRoom == null)
+        {
+            Debug.LogWarning("未找到入口或出口房间，跳过连通性验证");
+            return;
+        }
+        
+        // 获取入口和出口的中心位置
+        Vector2Int entrancePos = new Vector2Int(
+            (entranceRoom.left + entranceRoom.right) / 2,
+            (entranceRoom.top + entranceRoom.bottom) / 2
+        );
+        
+        Vector2Int exitPos = new Vector2Int(
+            (exitRoom.left + exitRoom.right) / 2,
+            (exitRoom.top + exitRoom.bottom) / 2
+        );
+        
+        // 确保入口和出口位置可通行
+        if (!IsPassable(entrancePos))
+        {
+            SetTerrain(entrancePos, Terrain.Floor);
+            Debug.Log($"修复入口位置 {entrancePos} 为可通行");
+        }
+        
+        if (!IsPassable(exitPos))
+        {
+            SetTerrain(exitPos, Terrain.Floor);
+            Debug.Log($"修复出口位置 {exitPos} 为可通行");
+        }
+        
+        // 设置入口和出口
+        SetEntrancePosition(entrancePos);
+        SetExitPosition(exitPos);
+        
+        // 验证连通性
+        ConnectivityValidation validation = PathFinder.ValidateConnectivity(this, entrancePos, exitPos, 0.7f);
+        
+        Debug.Log($"<color=cyan>{validation}</color>");
+        
+        if (!validation.isValid)
+        {
+            Debug.LogWarning($"<color=red>地图连通性验证失败：{validation.errorMessage}</color>");
+            
+            // 尝试修复
+            if (!validation.entranceToExitReachable)
+            {
+                Debug.Log("尝试连接入口和出口...");
+                ConnectTwoPoints(entrancePos, exitPos);
+                
+                // 重新验证
+                validation = PathFinder.ValidateConnectivity(this, entrancePos, exitPos, 0.7f);
+                Debug.Log($"修复后验证结果：{validation.isValid}");
+            }
+            
+            // 如果还有孤立区域，尝试连接它们
+            if (validation.isolatedRegionCount > 1)
+            {
+                Debug.Log($"发现 {validation.isolatedRegionCount} 个孤立区域，尝试连接...");
+                ConnectIsolatedRegions(validation.isolatedRegions);
+                
+                // 最终验证
+                validation = PathFinder.ValidateConnectivity(this, entrancePos, exitPos, 0.7f);
+                Debug.Log($"<color=yellow>最终验证结果：{validation.isValid}</color>");
+            }
+        }
+        else
+        {
+            Debug.Log("<color=green>✓ 地图连通性验证通过！</color>");
+        }
+        
+        Debug.Log("<color=yellow>━━━ 连通性验证完成 ━━━</color>");
+    }
+    
+    /// <summary>
+    /// 连接两个点，确保它们之间有通路
+    /// </summary>
+    private void ConnectTwoPoints(Vector2Int from, Vector2Int to)
+    {
+        Vector2Int current = from;
+        
+        // L型路径：先水平后垂直
+        while (current.x != to.x)
+        {
+            SetTerrain(current, Terrain.Floor);
+            current.x += current.x < to.x ? 1 : -1;
+        }
+        
+        while (current.y != to.y)
+        {
+            SetTerrain(current, Terrain.Floor);
+            current.y += current.y < to.y ? 1 : -1;
+        }
+        
+        SetTerrain(to, Terrain.Floor);
+        
+        Debug.Log($"创建连接路径：{from} -> {to}");
+    }
+    
+    /// <summary>
+    /// 连接所有孤立区域
+    /// </summary>
+    private void ConnectIsolatedRegions(List<List<Vector2Int>> regions)
+    {
+        if (regions.Count <= 1)
+            return;
+        
+        // 将最大的区域作为主区域
+        List<Vector2Int> mainRegion = regions[0];
+        foreach (var region in regions)
+        {
+            if (region.Count > mainRegion.Count)
+                mainRegion = region;
+        }
+        
+        // 将其他区域连接到主区域
+        foreach (var region in regions)
+        {
+            if (region == mainRegion)
+                continue;
+            
+            // 找到该区域中离主区域最近的点
+            Vector2Int closestInRegion = region[0];
+            Vector2Int closestInMain = mainRegion[0];
+            float minDistance = float.MaxValue;
+            
+            foreach (var pointInRegion in region)
+            {
+                foreach (var pointInMain in mainRegion)
+                {
+                    float distance = Vector2Int.Distance(pointInRegion, pointInMain);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        closestInRegion = pointInRegion;
+                        closestInMain = pointInMain;
+                    }
+                }
+            }
+            
+            // 连接这两个点
+            ConnectTwoPoints(closestInRegion, closestInMain);
+            Debug.Log($"连接孤立区域：{closestInRegion} -> {closestInMain}");
+        }
     }
     
     /// <summary>
