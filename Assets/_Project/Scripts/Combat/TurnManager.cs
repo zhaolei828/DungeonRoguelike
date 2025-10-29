@@ -18,6 +18,9 @@ public class TurnManager : Singleton<TurnManager>
     [Header("战斗参数")]
     [SerializeField] private float turnDuration = 1f; // 每回合的时间限制
     private float turnTimer = 0f;
+
+    [Header("UI引用")]
+    private BattleInfoPanel battleInfoPanel;
     
     // 战斗状态枚举
     public enum BattleState
@@ -35,6 +38,18 @@ public class TurnManager : Singleton<TurnManager>
     public BattleState CurrentState => currentState;
     public bool IsInBattle => isInBattle;
     
+    protected override void Awake()
+    {
+        base.Awake();
+        
+        // 查找BattleInfoPanel
+        battleInfoPanel = FindObjectOfType<BattleInfoPanel>();
+        if (battleInfoPanel == null)
+        {
+            Debug.LogWarning("TurnManager: 未找到BattleInfoPanel，战斗UI将不显示");
+        }
+    }
+
     /// <summary>
     /// 开始战斗
     /// </summary>
@@ -52,6 +67,14 @@ public class TurnManager : Singleton<TurnManager>
         currentState = BattleState.Starting;
         
         Debug.Log($"<color=cyan>⚔️ 战斗开始！{hero.gameObject.name} vs {enemy.MobName}</color>");
+        
+        // 显示战斗面板
+        if (battleInfoPanel != null)
+        {
+            battleInfoPanel.Show();
+            battleInfoPanel.ClearLog();
+            battleInfoPanel.AddBattleLog($"战斗开始！{hero.gameObject.name} vs {enemy.MobName}", Color.yellow);
+        }
         
         // 初始化回合顺序
         InitializeTurnOrder();
@@ -102,11 +125,23 @@ public class TurnManager : Singleton<TurnManager>
         {
             currentState = BattleState.HeroTurn;
             Debug.Log("<color=yellow>▶ Hero的回合</color>");
+            
+            // 更新UI
+            if (battleInfoPanel != null)
+            {
+                battleInfoPanel.UpdateTurnIndicator("Hero的回合", Color.green);
+            }
         }
         else if (currentActor is Mob mob)
         {
             currentState = BattleState.EnemyTurn;
             Debug.Log($"<color=yellow>▶ {mob.MobName} 的回合</color>");
+            
+            // 更新UI
+            if (battleInfoPanel != null)
+            {
+                battleInfoPanel.UpdateTurnIndicator($"{mob.MobName}的回合", Color.red);
+            }
             
             // AI自动执行
             ExecuteEnemyTurn(mob);
@@ -123,11 +158,20 @@ public class TurnManager : Singleton<TurnManager>
         
         // 计算伤害
         int damage = CombatCalculator.CalculateDamage(currentHero, currentEnemy);
+        bool isCritical = Random.value < (currentHero.Strength * 0.03f);
         
         // 应用伤害
-        currentEnemy.TakeDamage(damage);
+        currentEnemy.TakeDamage(damage, isCritical);
         
         Debug.Log($"<color=red>✦ Hero 对 {currentEnemy.MobName} 造成 {damage} 伤害</color>");
+        
+        // 添加战斗日志
+        if (battleInfoPanel != null)
+        {
+            string logMessage = $"Hero 对 {currentEnemy.MobName} 造成 {damage} 伤害";
+            Color logColor = isCritical ? Color.yellow : Color.white;
+            battleInfoPanel.AddBattleLog(logMessage, logColor);
+        }
         
         // 检查敌人是否死亡
         if (currentEnemy.Hp <= 0)
@@ -154,11 +198,20 @@ public class TurnManager : Singleton<TurnManager>
         
         // 计算伤害
         int damage = CombatCalculator.CalculateDamage(enemy, currentHero);
+        bool isCritical = Random.value < (enemy.Agility * 0.02f);
         
         // 应用伤害到Hero
-        currentHero.TakeDamage(damage);
+        currentHero.TakeDamage(damage, isCritical);
         
         Debug.Log($"<color=red>✦ {enemy.MobName} 对 Hero 造成 {damage} 伤害</color>");
+        
+        // 添加战斗日志
+        if (battleInfoPanel != null)
+        {
+            string logMessage = $"{enemy.MobName} 对 Hero 造成 {damage} 伤害";
+            Color logColor = isCritical ? Color.yellow : Color.white;
+            battleInfoPanel.AddBattleLog(logMessage, logColor);
+        }
         
         // 检查Hero是否死亡
         if (currentHero.Hp <= 0)
@@ -183,14 +236,43 @@ public class TurnManager : Singleton<TurnManager>
         if (finalState == BattleState.HeroVictory)
         {
             Debug.Log($"<color=green>🎉 胜利！{currentEnemy.MobName} 被击败了！</color>");
+            
+            // 添加胜利日志
+            if (battleInfoPanel != null)
+            {
+                battleInfoPanel.AddBattleLog($"胜利！{currentEnemy.MobName} 被击败了！", Color.green);
+            }
         }
         else if (finalState == BattleState.HeroDefeat)
         {
             Debug.Log($"<color=red>💀 失败！Hero 被击败了...</color>");
+            
+            // 添加失败日志
+            if (battleInfoPanel != null)
+            {
+                battleInfoPanel.AddBattleLog("失败！Hero 被击败了...", Color.red);
+            }
+        }
+        
+        // 延迟隐藏面板
+        if (battleInfoPanel != null)
+        {
+            Invoke(nameof(HideBattlePanel), 2f);
         }
         
         turnOrder.Clear();
         currentTurnIndex = 0;
+    }
+
+    /// <summary>
+    /// 隐藏战斗面板
+    /// </summary>
+    private void HideBattlePanel()
+    {
+        if (battleInfoPanel != null)
+        {
+            battleInfoPanel.Hide();
+        }
     }
     
     /// <summary>

@@ -30,17 +30,26 @@ public class DamageNumberManager : MonoBehaviour
     }
     
     /// <summary>
-    /// 显示伤害数字
+    /// 显示伤害数字（新版本，支持DamageType）
     /// </summary>
-    public void ShowDamage(Vector3 position, int damage, bool isCritical = false)
+    public void ShowDamage(Vector3 position, int damage, DamageNumber.DamageType type = DamageNumber.DamageType.Normal)
     {
         GameObject damageNumberGO = CreateDamageNumber(position);
         
         DamageNumber damageNumber = damageNumberGO.GetComponent<DamageNumber>();
         if (damageNumber != null)
         {
-            damageNumber.Show(damage, isCritical, false);
+            damageNumber.Show(damage, type);
         }
+    }
+
+    /// <summary>
+    /// 显示伤害数字（旧版本兼容）
+    /// </summary>
+    public void ShowDamage(Vector3 position, int damage, bool isCritical)
+    {
+        DamageNumber.DamageType type = isCritical ? DamageNumber.DamageType.Critical : DamageNumber.DamageType.Normal;
+        ShowDamage(position, damage, type);
     }
     
     /// <summary>
@@ -48,13 +57,7 @@ public class DamageNumberManager : MonoBehaviour
     /// </summary>
     public void ShowHeal(Vector3 position, int amount)
     {
-        GameObject damageNumberGO = CreateDamageNumber(position);
-        
-        DamageNumber damageNumber = damageNumberGO.GetComponent<DamageNumber>();
-        if (damageNumber != null)
-        {
-            damageNumber.Show(amount, false, true);
-        }
+        ShowDamage(position, amount, DamageNumber.DamageType.Heal);
     }
     
     /// <summary>

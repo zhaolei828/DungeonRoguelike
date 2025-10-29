@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Bash(dotnet build:*)",
+      "Bash(Unity:*)",
+      "Bash(where:*)",
+      "Bash(echo:*)",
+      "Read(//c/Users/Power/.claude//**)",
+      "Read(//c/Users/Power/.claude/**)",
+      "Bash(cat:*)",
+      "mcp__UnityMCP__*",
+      "Bash(export:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

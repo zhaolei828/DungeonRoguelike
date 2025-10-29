@@ -7,29 +7,41 @@ public static class CombatCalculator
 {
     /// <summary>
     /// 计算攻击者对防守者的伤害
-    /// 公式: (攻击力 + 力量修正) × (1 + 暴击倍数) - 防御减免
+    /// 公式: (攻击力 + 力量修正 + Buff修正) × (1 + 暴击倍数) - 防御减免
     /// </summary>
     public static int CalculateDamage(Mob attacker, Mob defender)
     {
         if (attacker == null || defender == null)
             return 0;
-        
+
         // 基础伤害
         int baseDamage = attacker.AttackPower;
-        
+
+        // Buff效果修正
+        if (attacker.TryGetComponent(out BuffSystem attackerBuffs))
+        {
+            // 力量Buff增加伤害
+            int strengthBonus = attackerBuffs.GetAttributeBonus(BuffType.Strength) * 2;
+            baseDamage += strengthBonus;
+
+            // 狂暴Buff增加伤害
+            float furyBonus = attackerBuffs.GetBuffIntensity(BuffType.Fury) * 3f;
+            baseDamage += (int)furyBonus;
+        }
+
         // 暴击判定
         float critChance = attacker.Agility * 0.02f; // 每点敏捷增加2%暴击率
         float critMultiplier = 1f;
-        
+
         if (Random.value < critChance)
         {
             critMultiplier = 1.5f; // 暴击伤害提高50%
             Debug.Log($"<color=yellow>暴击！伤害提升50%</color>");
         }
-        
+
         // 最终伤害 = (基础伤害 × 暴击倍数) - 防御减免
         int finalDamage = Mathf.Max(1, (int)(baseDamage * critMultiplier) - defender.Defense);
-        
+
         return finalDamage;
     }
     
@@ -40,23 +52,39 @@ public static class CombatCalculator
     {
         if (attacker == null || defender == null)
             return 0;
-        
+
         // Hero的攻击力基于力量属性
         int baseDamage = 5 + attacker.Strength / 2;
-        
+
+        // Buff效果修正
+        if (attacker.TryGetComponent(out BuffSystem attackerBuffs))
+        {
+            // 力量Buff增加伤害
+            int strengthBonus = attackerBuffs.GetAttributeBonus(BuffType.Strength) * 3;
+            baseDamage += strengthBonus;
+
+            // 狂暴Buff增加伤害
+            float furyBonus = attackerBuffs.GetBuffIntensity(BuffType.Fury) * 4f;
+            baseDamage += (int)furyBonus;
+
+            // 祝福Buff增加伤害
+            float blessingBonus = attackerBuffs.GetBuffIntensity(BuffType.Blessing) * 2f;
+            baseDamage += (int)blessingBonus;
+        }
+
         // 暴击判定
         float critChance = attacker.Strength * 0.03f; // 每点力量增加3%暴击率
         float critMultiplier = 1f;
-        
+
         if (Random.value < critChance)
         {
             critMultiplier = 1.8f; // Hero暴击伤害提高80%
             Debug.Log($"<color=yellow>英雄暴击！伤害提升80%</color>");
         }
-        
+
         // 最终伤害 = (基础伤害 × 暴击倍数) - 防御减免
         int finalDamage = Mathf.Max(1, (int)(baseDamage * critMultiplier) - defender.Defense);
-        
+
         return finalDamage;
     }
     
@@ -67,24 +95,36 @@ public static class CombatCalculator
     {
         if (attacker == null || defender == null)
             return 0;
-        
+
         // Mob的基础伤害基于攻击力属性
         int baseDamage = attacker.AttackPower;
-        
+
+        // Buff效果修正
+        if (attacker.TryGetComponent(out BuffSystem attackerBuffs))
+        {
+            // 力量Buff增加伤害
+            int strengthBonus = attackerBuffs.GetAttributeBonus(BuffType.Strength) * 2;
+            baseDamage += strengthBonus;
+
+            // 狂暴Buff增加伤害
+            float furyBonus = attackerBuffs.GetBuffIntensity(BuffType.Fury) * 3f;
+            baseDamage += (int)furyBonus;
+        }
+
         // 暴击判定
         float critChance = attacker.Agility * 0.02f; // 每点敏捷增加2%暴击率
         float critMultiplier = 1f;
-        
+
         if (Random.value < critChance)
         {
             critMultiplier = 1.5f; // Mob暴击伤害提高50%
             Debug.Log($"<color=yellow>暴击！伤害提升50%</color>");
         }
-        
+
         // 最终伤害 = (基础伤害 × 暴击倍数) - 防御减免
         // Hero的防御基于Armor属性
         int finalDamage = Mathf.Max(1, (int)(baseDamage * critMultiplier) - defender.Armor);
-        
+
         return finalDamage;
     }
     

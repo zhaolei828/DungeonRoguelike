@@ -66,6 +66,42 @@ public class HealthBarManager : MonoBehaviour
         // 初始化
         healthBar.Initialize(target, maxHP);
         
+        // 订阅Actor事件
+        Actor actor = target.GetComponent<Actor>();
+        if (actor != null)
+        {
+            actor.OnHealthChanged += (currentHp, maxHp, isCritical) => 
+            {
+                if (healthBar != null)
+                    healthBar.UpdateHealth(currentHp);
+            };
+            
+            actor.OnBuffChanged += (type, isAdded) => 
+            {
+                if (healthBar != null)
+                {
+                    if (isAdded)
+                    {
+                        // 获取Buff持续时间
+                        float duration = 10f; // 默认值
+                        if (actor.BuffSystem != null)
+                        {
+                            var buff = actor.BuffSystem.GetActiveBuffs().Find(b => b.Type == type);
+                            if (buff != null)
+                                duration = buff.RemainingTime;
+                        }
+                        healthBar.ShowBuffIcon(type, duration);
+                    }
+                    else
+                    {
+                        healthBar.HideBuffIcon(type);
+                    }
+                }
+            };
+            
+            Debug.Log($"<color=green>✓ 已订阅 {target.name} 的Actor事件</color>");
+        }
+        
         Debug.Log($"<color=green>HealthBarManager.CreateHealthBar 成功！返回血条: {healthBar != null}</color>");
         
         return healthBar;

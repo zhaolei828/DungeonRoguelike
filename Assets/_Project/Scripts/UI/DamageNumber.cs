@@ -8,6 +8,18 @@ using System.Collections;
 [RequireComponent(typeof(Canvas))]
 public class DamageNumber : MonoBehaviour
 {
+    /// <summary>
+    /// 伤害类型枚举
+    /// </summary>
+    public enum DamageType
+    {
+        Normal,     // 普通伤害
+        Critical,   // 暴击伤害
+        Heal,       // 治疗
+        Shield,     // 护盾吸收
+        Poison      // 毒伤
+    }
+
     [Header("UI组件")]
     [SerializeField] private Text damageText;
     [SerializeField] private Canvas canvas;
@@ -22,6 +34,8 @@ public class DamageNumber : MonoBehaviour
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color criticalColor = Color.yellow;
     [SerializeField] private Color healColor = Color.green;
+    [SerializeField] private Color shieldColor = new Color(0.3f, 0.8f, 1f); // 青蓝色
+    [SerializeField] private Color poisonColor = new Color(0.8f, 0.2f, 0.8f); // 紫色
     
     private float currentLifetime;
     private Vector3 velocity;
@@ -47,30 +61,42 @@ public class DamageNumber : MonoBehaviour
     }
     
     /// <summary>
-    /// 显示伤害数字
+    /// 显示伤害数字（新版本，支持DamageType）
     /// </summary>
-    public void Show(int damage, bool isCritical = false, bool isHeal = false)
+    public void Show(int damage, DamageType type = DamageType.Normal)
     {
         if (damageText == null) return;
         
         // 设置文本
         damageText.text = damage.ToString();
         
-        // 设置颜色
-        if (isHeal)
+        // 根据类型设置颜色和样式
+        switch (type)
         {
-            currentColor = healColor;
-            damageText.text = "+" + damageText.text;
-        }
-        else if (isCritical)
-        {
-            currentColor = criticalColor;
-            damageText.text += "!";
-            damageText.fontSize = (int)(damageText.fontSize * 1.3f);
-        }
-        else
-        {
-            currentColor = normalColor;
+            case DamageType.Normal:
+                currentColor = normalColor;
+                break;
+                
+            case DamageType.Critical:
+                currentColor = criticalColor;
+                damageText.text += "!";
+                damageText.fontSize = (int)(damageText.fontSize * 1.3f);
+                break;
+                
+            case DamageType.Heal:
+                currentColor = healColor;
+                damageText.text = "+" + damageText.text;
+                break;
+                
+            case DamageType.Shield:
+                currentColor = shieldColor;
+                damageText.text = damageText.text + " 盾";
+                break;
+                
+            case DamageType.Poison:
+                currentColor = poisonColor;
+                damageText.text = damageText.text + " 毒";
+                break;
         }
         
         damageText.color = currentColor;
@@ -87,6 +113,20 @@ public class DamageNumber : MonoBehaviour
         // 开始动画
         currentLifetime = lifetime;
         StartCoroutine(AnimateCoroutine());
+    }
+
+    /// <summary>
+    /// 显示伤害数字（旧版本兼容，保留向后兼容性）
+    /// </summary>
+    public void Show(int damage, bool isCritical = false, bool isHeal = false)
+    {
+        DamageType type = DamageType.Normal;
+        if (isHeal)
+            type = DamageType.Heal;
+        else if (isCritical)
+            type = DamageType.Critical;
+            
+        Show(damage, type);
     }
     
     private IEnumerator AnimateCoroutine()

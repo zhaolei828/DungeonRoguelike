@@ -1,0 +1,5 @@
+{
+    "dotnet.preferCSharpExtension": true,
+    "claude.code.mcp.autoApprove": ["UnityMCP"],
+    "claude.code.permissions.allow": ["mcp__UnityMCP__*"]
+}

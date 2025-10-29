@@ -140,28 +140,28 @@ public abstract class PatchRoom : StandardRoom
         int patchHeight = Height - 2;
         
         // 如果有门，从门内侧开始
-        foreach (var door in connected.Values)
+        foreach (var door in connected)
         {
             if (door == null) continue;
             
             // 计算门在patch坐标系中的位置
-            int localX = door.x - left - 1;
-            int localY = door.y - top - 1;
+            int localX = door.position.x - left - 1;
+            int localY = door.position.y - top - 1;
             
             // 门在边界上，我们需要找到门内侧的位置
-            if (door.x == left)
+            if (door.position.x == left)
             {
                 localX = 0;  // 左边界，往右
             }
-            else if (door.x == right)
+            else if (door.position.x == right)
             {
                 localX = patchWidth - 1;  // 右边界，往左
             }
-            else if (door.y == top)
+            else if (door.position.y == top)
             {
                 localY = 0;  // 上边界，往下
             }
-            else if (door.y == bottom)
+            else if (door.position.y == bottom)
             {
                 localY = patchHeight - 1;  // 下边界，往上
             }
@@ -187,34 +187,34 @@ public abstract class PatchRoom : StandardRoom
     {
         int patchWidth = Width - 2;
         
-        foreach (var door in connected.Values)
+        foreach (var door in connected)
         {
             if (door == null) continue;
             
             // 计算门在patch坐标系中的位置
-            int localX = door.x - left - 1;
-            int localY = door.y - top - 1;
+            int localX = door.position.x - left - 1;
+            int localY = door.position.y - top - 1;
             
             // 根据门的位置，清空门内侧2格
-            if (door.x == left)
+            if (door.position.x == left)
             {
                 // 左边界的门，清空右侧
                 SafeSetPatch(localX + 1, localY, false);
                 SafeSetPatch(localX + 2, localY, false);
             }
-            else if (door.x == right)
+            else if (door.position.x == right)
             {
                 // 右边界的门，清空左侧
                 SafeSetPatch(localX - 1, localY, false);
                 SafeSetPatch(localX - 2, localY, false);
             }
-            else if (door.y == top)
+            else if (door.position.y == top)
             {
                 // 上边界的门，清空下侧
                 SafeSetPatch(localX, localY + 1, false);
                 SafeSetPatch(localX, localY + 2, false);
             }
-            else if (door.y == bottom)
+            else if (door.position.y == bottom)
             {
                 // 下边界的门，清空上侧
                 SafeSetPatch(localX, localY - 1, false);
