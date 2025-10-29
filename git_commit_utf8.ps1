@@ -1,5 +1,5 @@
-# UTF-8 Git 提交脚本
-# 用法: .\git_commit_utf8.ps1 "你的提交消息"
+# UTF-8 Git Commit Script
+# Usage: .\git_commit_utf8.ps1 "Your commit message"
 
 param(
     [Parameter(Mandatory=$true)]
@@ -7,12 +7,12 @@ param(
 )
 
 $messageFile = "temp_commit_message.txt"
-$Message | Out-File -FilePath $messageFile -Encoding UTF8
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($messageFile, $Message, $utf8NoBom)
 
 try {
     git commit -F $messageFile
-    Write-Host "提交成功！" -ForegroundColor Green
+    Write-Host "Commit successful!" -ForegroundColor Green
 } finally {
     Remove-Item $messageFile -ErrorAction SilentlyContinue
 }
-
